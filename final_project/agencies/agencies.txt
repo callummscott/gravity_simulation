@@ -1,0 +1,34 @@
+https://www.rightmove.co.uk/
+https://www.openrent.co.uk/
+https://www.zoopla.co.uk/ -disallowed
+https://www.primelocation.com/to-rent/ -bad
+https://www.onthemarket.com/ #
+https://www.rentaroof.co.uk/ # These all seem to be like Rightmove and Zoopla
+https://spotrental.co.uk/    #
+https://rentola.co.uk/       # 
+https://www.bristolreslet.com/
+https://www.thelettinggame.co.uk/
+https://letsrentbristol.co.uk/ -bad
+https://jbsbristol.co.uk/ -bad
+https://www.haart.co.uk/renting/ -recommended
+https://www.sarahkennyresidentiallettings.co.uk/
+https://www.balloonlets.co.uk/
+https://www.romans.co.uk/estate-lettings-agents/bristol
+https://www.h4y.co.uk/ -bad # Uses rightmove and zoopla as hosts
+https://www.bristolpropertycentre.co.uk/
+https://www.goughquarters.co.uk/ -interesting
+https://sgflettings.co.uk/ -bad
+https://www.yourabode.co.uk/ -bad
+https://www.flatlineonline.co.uk/
+https://www.northwooduk.com/bristol-estate-agents/
+https://www.bristolsulettings.co.uk/ -bad # Specialises in student accom, but **apparently** has prof.
+https://www.oceanhome.co.uk/
+https://bristolcitylets.co.uk/ -ignore
+https://www.bruntandfussell.co.uk/
+https://www.airsatrealestate.co.uk/ -bad
+https://elitepropertiesbristol.co.uk/
+https://hopewell.co.uk/
+https://aul.org.uk/
+https://www.gumtree.com/flats-houses/property-to-rent # Recommended by Bristol council
+https://www.chappellandmatthews.co.uk/#/ -recommended
+https://www.cjhole.co.uk/property -recommended

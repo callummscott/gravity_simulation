@@ -1,0 +1,32 @@
+
+- Give every property a _score_, and I can then hardcode the weights for the things I care about.
+
+- Rightmove's 'propertCard's seem to show 24 images, the last two of which are for the next 'page', and it
+  seems to omit the first two/three from each page (the featured propert + 2 more)
+
+
+
+  Project Overview
+
+Project Name: Letting Agency Data Scraper and Property Evaluator
+
+Objective: Create a Python program that scrapes data from various letting websites, applies user-defined filters, and evaluates properties based on user preferences.
+
+Components:
+
+Data Scraping Functions:
+Separate functions for each letting website to apply filters to standard URLs
+Scrape main pages to retrieve URL information of listed properties
+Scrape individual property pages to retrieve relevant information
+Property Evaluation Functions:
+Model user preferences to generate a representative score for each property
+Integrate publicly available data on crime, noise pollution, and air quality
+Visualization and Output:
+Allow users to sort properties based on evaluation scores
+Generate colored icons or symbolic tools to visually display evaluation information on a map
+Functionality:
+
+Scrape data from multiple letting websites
+Apply user-defined filters to property listings
+Evaluate properties based on user preferences and external data
+Provide visual representation of property evaluations on a map
