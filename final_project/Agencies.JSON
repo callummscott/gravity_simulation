@@ -1,0 +1,7 @@
+{
+    "rightmove": {
+        "domain" : "rightmove",
+        "base url" : "https://www.rightmove.co.uk/",
+        "query tags" : {}
+    }
+}
