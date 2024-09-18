@@ -1,62 +1,42 @@
+""" Methods to generate and supply particle data for simulation purposes """
+
 import random
 import config
+import logging
 
 
-
-def get_mass():
-    """ Returns a single random mass value from 0 to 1"""
-    return random.random()*config.max_mass
-
-def get_position():
-    """ Returns a list of 3 random (x,y,z) coords from -max_dist to """
-    return [random.uniform(-1,1)*config.max_distance for _ in range(3)]
-
-def get_velocity():
-    """ Returns a list of 3 random (vx,vy,vz) velocity values from -1 to 1"""
-    return [random.uniform(-1,1)*config.max_speed for _ in range(3)]
+random.seed(config.random_seed)
 
 
-def get_masses():
-    """ Returns a list of masses; one for each of the `number of particles` """
-    return [get_mass() for _ in range(config.number_of_particles)]
+class SingleResult:
+    # Functions that generate single random results
+    def get_mass():
+        return random.random()*config.max_mass
 
-def get_velocities():
-    """ Returns a list of velocity vectors; one for each of the `number_of_particles` """
-    return [get_velocity() for _ in range(config.number_of_particles)]
+    def get_position():
+        return [random.uniform(-1,1)*config.max_distance for _ in range(3)]
 
-def get_positions():
-    """ Returns a list of position vectors; one for each of the `number_of_particles` """
-    return [get_position() for _ in range(config.number_of_particles)]
+    def get_velocity():
+        return [random.uniform(-1,1)*config.max_speed for _ in range(3)]
 
+class MultipleResults:
+    # Functions that generate one random result for every `config.number_of_particle`
+    def get_masses():
+        return [SingleResult.get_mass() for _ in range(config.number_of_particles)]
 
+    def get_velocities():
+        return [SingleResult.get_velocity() for _ in range(config.number_of_particles)]
 
-def get_particle_info():
-        if config.random_inputs:
-            return (get_mass(), get_position(), get_velocity())
-        else:
-            print("non-random inputs not set up yet")
-
-def get_mass_pos_vel():
-    first = get_masses()
-    second = get_positions()
-    third = get_velocities()
-    return (first, second, third)
-
-
-def result_printer():
-    print("\nPositions:")
-    print("-------------------------------------------")
-    for i in range(config.number_of_particles):
-        print(get_position(config.max_distance))
-    print("\nVelocities:")
-    print("-------------------------------------------")
-    for i in range(config.number_of_particles):
-        print(get_velocity(config.max_speed))
-
+    def get_positions():
+        return [SingleResult.get_position() for _ in range(config.number_of_particles)]
 
 
 def main():
-    result_printer(4, 10, 3)
-
-if __name__ == "__main__":
-    main()
+    # Generates pre-packaged tuple of all results, or user-defined results
+    if config.random_inputs:
+        first = MultipleResults.get_masses()
+        second = MultipleResults.get_positions()
+        third = MultipleResults.get_velocities()
+        return (first, second, third)
+    else:
+        logging.info("This functionality hasn't been implemented yet")

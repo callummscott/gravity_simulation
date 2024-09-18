@@ -5,6 +5,7 @@ import time
 import random
 import config
 
+
 class Symmetric(np.ndarray):
     # Has problems with non-2d-element-specific assignment.
     def __new__(cls, n: int):
@@ -84,33 +85,6 @@ def plot_results_3d(data_dict) -> None:
     plt.show()
 
 
-
-
-
-    
-    
-    def acceleration_derivate_of_(self, n):
-        vector_sum = np.empty(3)
-        for key, other_particle in self._dict_items:
-            if key == n:
-                continue
-            else:
-                vector_sum += other_particle.mass * (other_particle.velocity - self[n].velocity) / self._get_distances_cubed_from_a_to_b(n, key)
-        return config.G * vector_sum
-    
-        
-    def _get_distances_cubed_from_a_to_b(self, key1, key2):
-        if not (isinstance(key1, int) and isinstance(key2, int)):
-            raise TypeError('Incorrect argument type')
-        else:
-            return self._distances_cubed[key1-1, key2-1]
-        
-    """ method: self.STEP_AND_LOG_MOTION() """
-    
-    
-
-
-
 def run_full_simulation_on(object:Particles) -> None:
     steps = int(config.maximum_time/config.timestep)
     for _ in range(steps):
@@ -136,36 +110,39 @@ def get_particles_logged_xyz(object:Particles) -> dict[ int : tuple[list,list,li
 
 
 
-def acceleration_of_(particles, n):
+def acceleration_of_particle_in_dict(all_particles:dict, key_a:int, distances_cubed:Symmetric):
     vector_sum = np.empty(3)
-    for key, other_particle in particles:
-        if key == n:
+    for key_b, other_particle in all_particles.items():
+        if key_b == key_a:
             continue
         else:
-            vector_sum += other_particle.mass * (other_particle.position - particles[n].position) / self._get_distances_cubed_from_a_to_b(n, key)
+            vector_sum += other_particle.mass * (other_particle.position - all_particles[key_a].position) / distances_cubed[key_a-1, key_b-1]
     return config.G * vector_sum
 
-def initialise_distance_matrix(particles:dict):
-    distance_matrix = Symmetric(config.number_of_particles)
-    for i in range(config.number_of_particles):
-        for j in range(i+1, config.number_of_particles):
-            distance_matrix[i,j] = calculate_distance_from_a_to_b(particles[i+1], particles[j+1])
-    return distance_matrix
+def acceleration_derivate_of_(all_particles:dict, key_a, distances_cubed):
+        vector_sum = np.empty(3)
+        for key_b, other_particle in all_particles.items():
+            if key_b == key_a:
+                continue
+            else:
+                vector_sum += other_particle.mass * (other_particle.velocity - all_particles[key_a].velocity) / distances_cubed[key_a-1, key_b-1]
+        return config.G * vector_sum
 
-def update_distance_matrix(distance_matrix:Symmetric, particles:dict):
+def update_distances_from_dict(distance_matrix:Symmetric, particles_dict:dict):
     for i in range(config.number_of_particles):
         for j in range(i+1, config.number_of_particles):
             # self[k].position, hopefully, gets us the position of particle k.
-            distance_matrix[i,j] = calculate_distance_from_a_to_b(particles[i+1], particles[j+1])
+            distance_matrix[i,j] = calculate_distance_from_a_to_b(particles_dict[i+1], particles_dict[j+1])
     
 def calculate_distance_from_a_to_b(particle_a:Particle, particle_b:Particle):
     return np.linalg.norm(particle_b.position - particle_a.position)
 
 
-def log_and_calc_particle_motion(particle:Particle):
+def log_and_calc_particle_motion(all_particles:dict, particle:Particle, distance_matrix:Symmetric):
+    distances_cubed = distance_matrix**3
     particle.log_position()
-    particle._next_position = particle._position + particle._velocity*config.timestep + acceleration_of_()*config.half_dtsq
-    particle._next_velocity = particle._velocity + acceleration_of_()*config.timestep + acceleration_derivate_of_()*config.half_dtsq
+    particle._next_position = particle._position + particle._velocity*config.timestep + acceleration_of_particle_in_dict(all_particles, particle, distances_cubed)*config.half_dtsq
+    particle._next_velocity = particle._velocity + acceleration_of_particle_in_dict(all_particles, particle, distance_matrix)*config.timestep + acceleration_derivate_of_()*config.half_dtsq
         
 def update_all_particles(particles:dict):
     for particle in particles.values():
@@ -190,24 +167,32 @@ def get_all_particles_dictionary(all_masses=None, all_positions=None, all_veloci
     return output_dictionary
 
 def main():
-
+    """
+    1) Create dictionary of all particles
+    2) Initialise distances matrices
+    3) Begin full simulation loop: Log particle data in form that's fit for later collection
+    4) Each timestep we perform all calculationss (distances, next_pos, next_vel, etc.) 'synchronously'
+    5) After next pos. etc. calculated, overwrite all current data with next_data -- reset next_data?
+    6) Repeat until the settings times are complete
+    7) Retrieve and store logged particle data in desirable format
+    8) Filter out unnecessary pyplot points before visualisation
+    9) Visualize data with pyplot
+    """
+    # 1
     particles_dictionary = get_all_particles_dictionary() # No inputs because config.random_inputs==True
     particles_list = particles_dictionary.values()
-
-    distances_matrix = initialise_distance_matrix(config.number_of_particles)
-    distances_cubed = distances_matrix**3
-
+    # 2
+    distances_matrix = Symmetric(config.number_of_particles)
+    # 3 4 5 6
     for _ in range(config.number_of_steps):
+        update_distances_from_dict(distances_matrix, particles_dictionary)
+        distances_cubed = distances_matrix**3
         for particle in particles_list: 
             log_and_calc_particle_motion(particle)
+
         update_all_particles(particles_dictionary)
-        update_distance_matrix(distances_matrix, particles_dictionary)
-        distances_cubed = distances_matrix**3
+        
     
-
-
-
-
 
     run_full_simulation_on(particles)
 
