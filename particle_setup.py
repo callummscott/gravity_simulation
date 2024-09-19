@@ -2,8 +2,9 @@
 
 import random
 import config
-import logging
 import json
+import logging
+logger = logging.getLogger(__name__)
 
 
 random.seed(config.random_seed)
@@ -71,6 +72,7 @@ class Visuals:
     
     @classmethod
     def get_distinct_rgb_tuple(cls):
+        """ Converts distinct_rgb value to 0 -> 1 form and returns in a tuple """
         rgb_0_255_list = cls.choose_distinct_rgb()
         rgb_0_1_tuple = (value/255.0 for value in rgb_0_255_list)
         return tuple(rgb_0_1_tuple)
@@ -79,11 +81,13 @@ class Visuals:
 
 
 def get_input_variables():
+    config.for_logging
     # Generates pre-packaged tuple of all results, or user-defined results
     if config.random_inputs:
         first = MultipleResults.get_masses()
         second = MultipleResults.get_positions()
         third = MultipleResults.get_velocities()
+        logger.info('Sending input variables') 
         return (first, second, third)
     else:
-        logging.info("This functionality hasn't been implemented yet")
+        logger.info("This functionality hasn't been implemented yet")

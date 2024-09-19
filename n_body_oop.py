@@ -5,6 +5,9 @@ import particle_setup
 import numpy as np
 import matplotlib.pyplot as plt
 import time
+import logging
+logger = logging.getLogger(__name__)
+
 
 
 class Symmetric(np.ndarray):
@@ -160,23 +163,41 @@ def plot_results_3d(data_dict:dict) -> None:
     ax.set_zlabel('z axis')
     ax.axis('equal')
 
+    total_time = time.time() - start_time
+    logger.info(f"Total runtime was: {total_time:.3f}s")
     plt.show()
+
+    
 
 
 def main():
+
+    config.for_logging
+
     """ Retrives and sets up initial particle data from `particle_setup`,
         iteratively calculates and logs particle motion for defined period,
         converts positional data to (x,y,z) coordinates and plots results in 3D  """
 
+    logger.info('Requesting input variables')
     masses, positions, velocities = particle_setup.get_input_variables()
+
+    logger.info('Initialising particles with input data')
     General.initialise_particle_data(masses, positions, velocities)
 
+    logger.info('Beginning runtime simulation')
     for _ in range(config.number_of_steps):    
         step_and_log_particle_motion()
 
+    logger.info('Requesting portion of particle positional data')
     results = get_particles_filtered_xyz()
+
+    logger.info('Plotting results')
     plot_results_3d(results)
     
 
 if __name__ == "__main__":
+
+    start_time = time.time()
     main()
+
+    

@@ -1,0 +1,7 @@
+12:06:34 [INFO] n_body_oop > main: Requesting input variables
+12:06:34 [INFO] particle_setup > get_input_variables: Sending input variables
+12:06:34 [INFO] n_body_oop > main: Initialising particles with input data
+12:06:34 [INFO] n_body_oop > main: Beginning runtime simulation
+12:07:15 [INFO] n_body_oop > main: Requesting portion of particle positional data
+12:07:15 [INFO] n_body_oop > main: Plotting results
+12:07:15 [INFO] n_body_oop > plot_results_3d: Total runtime was: 41.719s
