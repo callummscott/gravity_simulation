@@ -1,11 +1,11 @@
 """ Program to generate 3D plot of n-particle motion under the influence of gravity """
 
+import config
+import particle_setup
 import numpy as np
 import matplotlib.pyplot as plt
-import particle_setup
 import time
-import random
-import config
+
 
 class Symmetric(np.ndarray):
     """ Class to define symmetric matrices that serve to represent distances -- theoretically saves (n-1)/2n ~= 40% the distance calculations. """
@@ -105,6 +105,7 @@ class Particle:
         if self.log_counter % config.simple_log_rate == 0:
             self.position_log.append(self._position)
 
+
 def step_and_log_particle_motion() -> None:
     """ Should this be a General static method or exist outside of the General class? """
     General.update_distance_matrices()
@@ -118,32 +119,6 @@ def step_and_log_particle_motion() -> None:
     for _, particle in General.items:
         particle._position = particle._next_position
         particle._velocity = particle._next_velocity
-
-def plot_results_3d(data_dict:dict) -> None:
-    """ Takes in a dictionary of particle key : positional data-points, generates 3D plot """
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')   
-    
-    for particle in data_dict:
-        xs, ys, zs = data_dict[particle]
-        ax.scatter3D(xs, ys, zs, marker='o',color=random.choice(['red', 'blue', 'green', 'yellow', 'purple', 'black', 'teal']), label=f"{particle}")
-        ax.plot3D(xs, ys, zs)
-        ax.text3D(xs[0], ys[0], zs[0], f"Particle {particle}")
-        ax.legend()
-
-    ax.set_xlabel('x axis')
-    ax.set_ylabel('y axis')
-    ax.set_zlabel('z axis')
-    ax.axis('equal')
-
-    plt.show()
-
-def log_to_output_filter(index:int) -> bool:
-    """ Takes in index, serves to help filter out excessive data-points for the 3D plot """
-    if index % config.simple_log_rate == 0:
-        return True
-    else:
-        return False
 
 def get_particles_filtered_xyz() -> dict:
     """ Returns a dictionary of particle key : logged positional information -- i.e. after having filtered out some for efficiency """
@@ -160,10 +135,40 @@ def get_particles_filtered_xyz() -> dict:
 
         key_to_logged_xyzs[key] = (x_coords, y_coords, z_coords)
     return key_to_logged_xyzs
-    
-def main():
 
-    masses, positions, velocities = particle_setup.main()
+def log_to_output_filter(index:int) -> bool:
+    """ Takes in index, serves to help filter out excessive data-points for the 3D plot """
+    if index % config.simple_log_rate == 0:
+        return True
+    else:
+        return False
+
+def plot_results_3d(data_dict:dict) -> None:
+    """ Takes in a dictionary of particle key : positional data-points, generates 3D plot """
+    fig = plt.figure()
+    ax = plt.axes(projection='3d')   
+    
+    for particle in data_dict:
+        xs, ys, zs = data_dict[particle]
+        ax.scatter3D(xs, ys, zs, marker='o',color=particle_setup.Visuals.get_distinct_rgb_tuple(), label=f"{particle}")
+        ax.plot3D(xs, ys, zs)
+        ax.text3D(xs[0], ys[0], zs[0], f"Particle {particle}")
+        ax.legend()
+
+    ax.set_xlabel('x axis')
+    ax.set_ylabel('y axis')
+    ax.set_zlabel('z axis')
+    ax.axis('equal')
+
+    plt.show()
+
+
+def main():
+    """ Retrives and sets up initial particle data from `particle_setup`,
+        iteratively calculates and logs particle motion for defined period,
+        converts positional data to (x,y,z) coordinates and plots results in 3D  """
+
+    masses, positions, velocities = particle_setup.get_input_variables()
     General.initialise_particle_data(masses, positions, velocities)
 
     for _ in range(config.number_of_steps):    

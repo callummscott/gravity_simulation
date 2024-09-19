@@ -16,7 +16,7 @@ maximum_time = 100 #s
 pov_particle = 3
 total_points_number = 9_000
 
-# Derived values from the settings above
+### Derived values from the settings above ###
 half_dtsq = .5*timestep**2
 number_of_steps = int(maximum_time/timestep)
 simple_log_rate = int(maximum_time/(total_points_number*timestep))

@@ -3,6 +3,7 @@
 import random
 import config
 import logging
+import json
 
 
 random.seed(config.random_seed)
@@ -30,8 +31,54 @@ class MultipleResults:
     def get_positions():
         return [SingleResult.get_position() for _ in range(config.number_of_particles)]
 
+class Visuals:
 
-def main():
+    @classmethod
+    def check_particle_number():
+        """ Just does a simple check that the particle number doesn't exceed the number of colours """
+        if config.number_of_particles > 16:
+            logging.critical("Too many particles; not enough colours!")
+
+    @classmethod
+    def get_colours_data(cls):
+        """ Retrives colours from colours.json in Python dict form """
+        with open('colours.json', 'r') as json_file:
+            return json.load(json_file)
+
+    @classmethod
+    def get_colours_rgb(cls):
+        """ Returns dictionary of colour names to [R,G,B] values """
+        colours_json = cls.get_colours_data()
+        colours_rgb = {}
+
+        for colour in colours_json:
+            colours_rgb[colour] = colours_json[colour]['RGB']
+        
+        return colours_rgb
+
+    @classmethod
+    def choose_distinct_rgb(cls):
+        """ Selects a colour at random and removes it from pool to be next chosen from """
+
+        if len(cls.colours_chosen) >= 16:
+            raise IndexError("All colours have already been used up!")
+        
+        colours_left = [colour for colour in cls.get_colours_rgb() if colour not in Visuals.colours_chosen]
+        choice = random.choice(colours_left)
+        cls.colours_chosen.add(choice)
+
+        return cls.get_colours_rgb()[choice]
+    
+    @classmethod
+    def get_distinct_rgb_tuple(cls):
+        rgb_0_255_list = cls.choose_distinct_rgb()
+        rgb_0_1_tuple = (value/255.0 for value in rgb_0_255_list)
+        return tuple(rgb_0_1_tuple)
+    
+    colours_chosen = set()
+
+
+def get_input_variables():
     # Generates pre-packaged tuple of all results, or user-defined results
     if config.random_inputs:
         first = MultipleResults.get_masses()
