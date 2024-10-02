@@ -4,11 +4,12 @@ import config
 import particle_setup
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import animation
 import time
 import logging
-
-
 logger = logging.getLogger(__name__)
+
+
 
 class Symmetric(np.ndarray):
     """ Class to define symmetric matrices that serve to represent distances -- theoretically saves (n-1)/2n ~= 40% the distance calculations. """
@@ -70,9 +71,6 @@ class General:
         return config.G * vector_sum
 
     
-    def get_particles_logged_pos():
-        ...
-    
 class Particle:
     """ Instances represent individual particles involved in simulation. Information about their mass, position, velocity are stored here. """
     def __init__(self, mass:float, initial_position:list, initial_velocity:list):
@@ -109,12 +107,11 @@ class Particle:
             self.position_log.append(self._position)
 
 
-def step_and_log_particle_motion() -> None:
+def step_and_return_artist() -> None:
     """ Should this be a General static method or exist outside of the General class? """
     General.update_distance_matrices()
 
     for particle_key, particle in General.items:
-        particle.log_position()
         particle._next_position = particle._position + particle._velocity*config.timestep + General.acceleration_of_(particle_key)*config.half_dtsq
         particle._next_velocity = particle._velocity + General.acceleration_of_(particle_key)*config.timestep + General.acceleration_derivate_of_(particle_key)*config.half_dtsq
 
@@ -123,21 +120,7 @@ def step_and_log_particle_motion() -> None:
         particle._position = particle._next_position
         particle._velocity = particle._next_velocity
 
-def get_particles_filtered_xyz() -> dict:
-    """ Returns a dictionary of particle key : logged positional information -- i.e. after having filtered out some for efficiency """
-    key_to_logged_xyzs = {}
-    key_to_logged_positions = { key : General.all[key].position_log for key in General.all }
-
-    for key, particle_positions in key_to_logged_positions.items():
-        x_coords, y_coords, z_coords = [], [], []
-        for position_index, position in enumerate(particle_positions):
-            if log_to_output_filter(position_index):
-                x_coords.append(position[0])
-                y_coords.append(position[1])
-                z_coords.append(position[2])
-
-        key_to_logged_xyzs[key] = (x_coords, y_coords, z_coords)
-    return key_to_logged_xyzs
+    return [particle.position for _, particle in General.items]
 
 def log_to_output_filter(index:int) -> bool:
     """ Takes in index, serves to help filter out excessive data-points for the 3D plot """
@@ -146,28 +129,29 @@ def log_to_output_filter(index:int) -> bool:
     else:
         return False
 
-def plot_results_3d(data_dict:dict) -> None:
+def plot_animated_results() -> None:
     """ Takes in a dictionary of particle key : positional data-points, generates 3D plot """
     fig = plt.figure()
-    ax = plt.axes(projection='3d')   
+    ax = fig.add_subplot(projection='3d')   
     
-    for particle in data_dict:
-        xs, ys, zs = data_dict[particle]
-        ax.scatter3D(xs, ys, zs, marker='o',color=particle_setup.Visuals.get_distinct_rgb_tuple(), label=f"{particle}")
-        ax.plot3D(xs, ys, zs)
-        ax.text3D(xs[0], ys[0], zs[0], f"Particle {particle}")
-        ax.legend()
+    
+    all_artists = []
+    for _ in range(config.number_of_steps):
+        data = General.all[1].position
+        step_and_return_artist()
+        container = ax.scatter3D(data[0], data[1], data[2])
+        all_artists.append(container)
 
     ax.set_xlabel('x axis')
     ax.set_ylabel('y axis')
     ax.set_zlabel('z axis')
     ax.axis('equal')
 
+    ani = animation.ArtistAnimation(fig=fig, artists=all_artists, interval=400)
+
     total_time = time.time() - start_time
     logger.info(f"Total runtime was: {total_time:.3f}s")
     plt.show()
-
-    
 
 def main():
 
@@ -180,21 +164,16 @@ def main():
     logger.info('Requesting input variables')
     masses, positions, velocities = particle_setup.get_input_variables()
 
-    logger.info('Initialising particles with input data')
+    logger.info('Initialising particles with input data, create particle dictionary')
     General.initialise_particle_data(masses, positions, velocities)
 
-    logger.info('Beginning runtime simulation')
-    for _ in range(config.number_of_steps):    
-        step_and_log_particle_motion()
-
-    logger.info('Requesting portion of particle positional data')
-    results = get_particles_filtered_xyz()
-
     logger.info('Plotting results')
-    plot_results_3d(results)
+    plot_animated_results()
     
 
 if __name__ == "__main__":
 
     start_time = time.time()
     main()
+
+    

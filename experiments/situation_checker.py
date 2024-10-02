@@ -1,4 +1,6 @@
-from astropy.time import Time
+
+
+"""from astropy.time import Time
 from astropy.coordinates import solar_system_ephemeris, EarthLocation
 from astropy.coordinates import get_body, get_moon
 from astropy.coordinates import SkyCoord, EarthLocation, AltAz
@@ -15,4 +17,4 @@ with solar_system_ephemeris.set('jpl'):
 altazframe = AltAz(obstime=t, location=loc, pressure=0)
 sunaz=sun.transform_to(altazframe)
 
-print(sunaz.alt.degree,sunaz.az.degree)
+print(sunaz.alt.degree,sunaz.az.degree)"""
