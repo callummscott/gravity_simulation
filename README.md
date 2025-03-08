@@ -11,3 +11,7 @@
     - simply stores 16 notably-distinct colours to be *uniquely* used by each of the particles
 - `sim.log`:
     - stores the `logging` outputs of the files, *logging level* and other settings defined in `config.py` 
+
+
+# Usage:
+- Run with `py -m gravity_simulation.main` -- imports won't work if not ran as a module.
