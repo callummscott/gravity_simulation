@@ -14,6 +14,7 @@
 - **Provide an estimation for the time to simulate given the input criteria**
 - Warn the user about the ranges of specific inputs, if particles will escape,
     or if particles are likely to collide, maybe
+- Randomly generate particles with different density distributions, i.e. not just randomly distributed throughout a uniform cube, but maybe a torus, a sphere, a spherical shell, etc.
 
 # More meta/structural improvements to be made:
  - Potentially change `config.py` to `settings.py`
