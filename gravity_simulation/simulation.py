@@ -231,7 +231,7 @@ def get_filtered_xyz_values(position_log: dict) -> dict:
     filtered_positions = dict()
     #* Iterates across each particle and its position log
     #*  > Length of of position logs across particles can vary
-    final_log_rate = 
+    final_log_rate = ...
     for id, log in position_log.items(): # essentially, log = [ [x,y,z], [x,y,z], ... ]
         xs, ys, zs = log.xs, log.ys, log.zs
         filtered_xs, filtered_ys, filtered_zs  = [], [], []
