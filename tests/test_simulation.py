@@ -5,7 +5,7 @@ from random import randint
 
 from gravity_simulation.config import Config
 from tests.utils import TestConfig, get_test_particles, random_mass, random_distance, random_speed
-from gravity_simulation.simulation import initialise_random_particles, get_distance_matrix, step_and_log_particle_motion
+from gravity_simulation.simulation import initialise_random_particles, get_distance_matrix, get_next_particle_states
 
 CONFIG = Config()
 
@@ -56,7 +56,7 @@ def test_get_impulse_on_particle():
     ...
     # TODO: ...
 
-def test_step_and_log_particle_motion():
+def test_get_next_particle_states():
     # Going to mainly test energy conservation on this part
     particles = get_test_particles() #* Utils
 
@@ -80,7 +80,7 @@ def test_step_and_log_particle_motion():
     
     energy_log = dict()
     for i in range(TestConfig.number_of_steps):
-        step_and_log_particle_motion(particles)
+        get_next_particle_states(particles)
         if i % 100 == 0:
             energy_log[i] = calculate_energy_of_particles(particles)    
     
@@ -89,3 +89,10 @@ def test_step_and_log_particle_motion():
     
     for i in range(len(energy_diff) - 1):
         assert energy_diff[i+1] == approx(energy_diff[i]) 
+
+if __name__ == "__main__":
+    test_get_distance_matrix()
+    test_get_force_on_particle()
+    test_get_impulse_on_particle()
+    test_initialise_random_particles()
+    test_get_next_particle_states()

@@ -112,3 +112,8 @@ def test_get_velocities():
         get_velocities(N=1, max_speed=[1,2,3])
 
 
+if __name__ == "__main__":
+    test_get_masses()
+    test_get_position()
+    test_get_positions()
+    test_get_velocities()

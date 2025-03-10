@@ -83,3 +83,9 @@ def test_choose_distinct_rgb():
 def test_get_distinct_rgb_tuple():
     ...
     #TODO: Can't really do this until I've sorted out its functionality in the actual program.
+
+
+if __name__ == "__main__":
+    test_get_colours_rgb()
+    test_choose_distinct_rgb()
+    # test_get_distinct_rgb_tuple()
