@@ -4,6 +4,7 @@ from time import time
 from numpy.linalg import norm
 from gravity_simulation.config import Config
 from gravity_simulation.simulation import *
+from gravity_simulation.plotter import *
 
 from gravity_simulation.simulation import get_distance_matrix # Testing
 

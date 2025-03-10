@@ -28,10 +28,16 @@ class Config:
         self.half_dtsq       = self.timestep**2 / 2
         self.number_of_steps = int(self.maximum_time/self.timestep)
         self.number_of_calcs = self.number_of_steps*self.number_of_particles
-        self.simple_log_rate = int(self.maximum_time / (self.total_points_number * self.timestep))
+        self.simple_log_rate = int(self.number_of_particles * self.maximum_time / (self.total_points_number * self.timestep))
 
         log_cfg = config['Logging info']
         self.logger = logging.getLogger(__name__)
-        logging.basicConfig(filename=output_file, level=logging.INFO, format=log_cfg['format'], datefmt=log_cfg['datefmt'], filemode="w")
+        logging.basicConfig(
+            filename=output_file,
+            level=logging.INFO,
+            format=log_cfg['format'],
+            datefmt=log_cfg['datefmt'],
+            filemode="w"
+        )
 
         seed(self.seed)

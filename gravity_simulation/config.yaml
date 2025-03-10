@@ -14,7 +14,7 @@ maximum_time : 100 #s
 collision_distance : 1
 
 # Plot constants:
-total_points_number : 20
+total_points_number : 1000
 
 Logging info:
   format : '%(asctime)s [%(levelname)s] %(module)s > %(funcName)s: %(message)s'
