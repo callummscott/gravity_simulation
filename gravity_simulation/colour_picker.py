@@ -1,7 +1,7 @@
 
 from json import load
 from random import choice
-from gravity_simulation.config import Config
+from gravity_simulation.classes.config import Config
 
 CONFIG = Config()
 

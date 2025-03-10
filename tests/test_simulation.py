@@ -3,7 +3,7 @@ from numpy.linalg import norm
 from pytest import approx, raises
 from random import randint
 
-from gravity_simulation.config import Config
+from gravity_simulation.classes.config import Config
 from tests.utils import TestConfig, get_test_particles, random_mass, random_distance, random_speed
 from gravity_simulation.simulation import initialise_random_particles, get_distance_matrix, get_next_particle_states
 

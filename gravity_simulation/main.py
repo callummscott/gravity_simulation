@@ -2,7 +2,7 @@
 
 from time import time
 from numpy.linalg import norm
-from gravity_simulation.config import Config
+from gravity_simulation.classes.config import Config
 from gravity_simulation.simulation import *
 from gravity_simulation.plotter import *
 

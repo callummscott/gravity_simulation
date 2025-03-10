@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 from time import time
 
-from gravity_simulation.config import Config
-from gravity_simulation.position_log import PositionLog
+from gravity_simulation.classes.config import Config
+from gravity_simulation.classes.position_log import PositionLog
 
 from gravity_simulation.colour_picker import choose_distinct_rgb
 from gravity_simulation.colour_picker import rgb_to_0_1_format

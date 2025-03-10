@@ -1,10 +1,10 @@
 """ Program to generate 3D plot of n-particle motion under the influence of gravity """
 import numpy as np
 
-from gravity_simulation.config import Config
-from gravity_simulation.particle import Particle
-from gravity_simulation.symmetric import Symmetric
-from gravity_simulation.position_log import PositionLog
+from gravity_simulation.classes.config import Config
+from gravity_simulation.classes.particle import Particle
+from gravity_simulation.classes.symmetric import Symmetric
+from gravity_simulation.classes.position_log import PositionLog
 
 from gravity_simulation.particle_setup import get_random_input_variables
 
