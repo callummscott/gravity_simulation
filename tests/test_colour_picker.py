@@ -2,7 +2,7 @@
 from pytest import raises
 from random import shuffle
 
-from gravity_simulation.colour_picker import get_colours_rgb, choose_distinct_rgb, get_colours_json
+from src.colour_picker import get_colours_rgb, choose_distinct_rgb, get_colours_json
 
 # Omitting get_colours_json since it's kinda stupid
 

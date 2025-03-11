@@ -2,7 +2,7 @@
 from pytest import raises, approx
 from random import random, randrange, choice
 
-from gravity_simulation.particle_setup import get_masses, get_positions, get_velocities, get_position, vector_length
+from src.particle_setup import get_masses, get_positions, get_velocities, get_position, vector_length
 
 
 def test_get_masses():
