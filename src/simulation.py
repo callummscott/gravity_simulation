@@ -1,12 +1,12 @@
 """ Program to generate 3D plot of n-particle motion under the influence of gravity """
 import numpy as np
 
-from gravity_simulation.classes.config import Config
-from gravity_simulation.classes.particle import Particle
-from gravity_simulation.classes.symmetric import Symmetric
-from gravity_simulation.classes.position_log import PositionLog
+from src.classes.config import Config
+from src.classes.particle import Particle
+from src.classes.symmetric import Symmetric
+from src.classes.position_log import PositionLog
 
-from gravity_simulation.particle_setup import get_random_input_variables
+from src.particle_setup import get_random_input_variables
 
 CONFIG = Config()
 
@@ -16,8 +16,8 @@ def initialise_random_particles(n: int, max_mass: float, max_distance: float, ma
 
     if not isinstance(n, int):
         raise TypeError
-    elif n < 0:
-        raise ValueError("N cannot be less than 0")
+    elif n < 1:
+        raise ValueError("N cannot be less than 1")
     elif n > 16:
         raise ValueError("Too many particles for the number of colours")
     
@@ -30,11 +30,10 @@ def initialise_random_particles(n: int, max_mass: float, max_distance: float, ma
 
 def get_distance_matrix(particles: dict) -> Symmetric:
     """ Calculates and returns the symmetric distance matrix for a dictionary of Particles """
-    distance_matrix = Symmetric(CONFIG.number_of_particles)
-    all_particle_ids = list(range(CONFIG.number_of_particles))
+    distance_matrix = Symmetric(len(particles))
     remaining_particle_ids = set(particles)
 
-    distance_matrix[:] = np.nan
+    distance_matrix[:] = np.nan # Resets distances
     for id in remaining_particle_ids:
         for jd in remaining_particle_ids:
             distance_matrix[id, jd] = np.linalg.norm(particles[id].position - particles[jd].position)
@@ -70,7 +69,6 @@ def get_impulse_on_particle(particle_id: int, particles: dict, distance_cubed_ma
 def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
     """ Checks if any distances are less than threshold, calculates state variables and merges all collisions with most massive particle, returns updated Particle dictionary with other collided ones removed """
 
-    CONFIG.logger.info("--- Handling potential Collisions ---")
     distances = get_distance_matrix(particles)
 
     colliding_particle_pairs = []
@@ -81,7 +79,7 @@ def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
         if id in particle_set:
             for jd in range(id+1, CONFIG.number_of_particles): #* i+1 ensures it doesn't look at [i,i] elements
                 if jd in particle_set:
-                    CONFIG.logger.info(f"Checking between : i={id} & j={jd}")
+                    # CONFIG.logger.info(f"Checking between : i={id} & j={jd}")
                     if distances[id, jd] < CONFIG.collision_distance:
                         CONFIG.logger.info(f" ^ Collision found!")
                         colliding_particle_pairs.append({id, jd})
@@ -106,6 +104,27 @@ def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
             CONFIG.logger.info(f"Particles after popping: {particles}")
     
     return particles
+
+
+def calculate_energy_of_particles(particles: dict) -> float:
+        total_energy = 0
+        for id in particles:
+            particle = particles[id]
+            distances = get_distance_matrix(particles)
+
+            # Calculate kinetic energy of particles
+            kinetic_energy = .5*particle.mass*np.linalg.norm(particle.velocity)**2
+            # Calculate potential energy of particles
+            potential_energy = 0
+            if len(particles) > 1:
+                for i in range(len(particles)):
+                    particle_1 = particles[i]
+                    for j in range(i+1, len(particles)):
+                        particle_2 = particles[j]
+                        potential_energy -= CONFIG.G*particle_1.mass*particle_2.mass / distances[i, j]
+            # Sum energy
+            total_energy += kinetic_energy + potential_energy
+        return total_energy
 
 
 def get_next_particle_states(particles: dict[int: Particle]) -> None:
@@ -134,6 +153,25 @@ def get_next_particle_states(particles: dict[int: Particle]) -> None:
 
     return particles
 
+def get_next_particle_states_verlet(particles: dict[int: Particle]) -> None:
+    """ Takes in Particles, calculates changes in motion, updates Particle attributes, returns """
+
+    distances_cubed = get_distance_matrix(particles)**3
+    
+    G         = CONFIG.G
+    dt        = CONFIG.timestep
+    half_dtsq = CONFIG.half_dtsq
+
+    for particle_id, particle in particles.items():                
+        next_position = particle.position + particle.velocity*dt + half_dtsq*get_force_on_particle(particle)/particle.mass
+        next_acceleration = get_force_on_particle(particle, particles, distances_cubed)
+
+    # Have to separate these reassignments so that the calculations all apply to the particle's state in the *previous* step
+    for particle in particles.values():
+        particle.position = particle.next_position
+        particle.velocity = particle.next_velocity
+
+    return particles
 
 def get_updated_position_logs(position_logs: PositionLog, particles: Particle) -> PositionLog:
     for id, particle in particles.items():

@@ -1,12 +1,12 @@
 
 from json import load
 from random import choice
-from gravity_simulation.classes.config import Config
+from src.classes.config import Config
 
 CONFIG = Config()
 
 def get_colours_json():
-    with open('gravity_simulation/colours.json', 'r') as json_file:
+    with open('src/colours.json', 'r') as json_file:
         colours_json = load(json_file)
     return colours_json
 

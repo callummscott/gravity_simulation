@@ -2,12 +2,11 @@
 
 from time import time
 from numpy.linalg import norm
-from gravity_simulation.classes.config import Config
-from gravity_simulation.simulation import *
-from gravity_simulation.plotter import *
+from src.plotter import *
+from src.simulation import *
+from src.classes.config import Config
 
-from gravity_simulation.simulation import get_distance_matrix # Testing
-
+from src.simulation import get_distance_matrix # Testing
 
 CONFIG = Config()
 
@@ -33,6 +32,7 @@ def calculate_energy_of_particles(particles: dict):
 def main():
 
     start_time = time()
+    print("Starting simulation.")
 
     particles = initialise_random_particles(
         n            = CONFIG.number_of_particles,
@@ -44,7 +44,8 @@ def main():
 
     position_logs = { id: PositionLog() for id in particles }
     for i in range(CONFIG.number_of_steps):
-        # CONFIG.logger.info(f"Step: {i}")
+        if i % 50 == 0:
+            CONFIG.logger.info(f"Step: {i}, Energy = {calculate_energy_of_particles(particles):_}")
         particles = collision_handler(particles)
         position_logs = get_updated_position_logs(position_logs, particles)
         particles = get_next_particle_states(particles)

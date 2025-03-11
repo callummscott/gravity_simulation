@@ -7,7 +7,7 @@ class Config:
 
     def __init__(self, output_file="sim.log"):
         
-        with open("gravity_simulation/config.yaml", 'r') as config_file:
+        with open("src/config.yaml", 'r') as config_file:
             config = safe_load(config_file)
 
         self.random_inputs = config['random_inputs']

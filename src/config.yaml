@@ -1,6 +1,6 @@
 ---
 # Particle setup values:
-random_inputs: True
+random_inputs: True # No such functionality for this being false...
 seed: 'RandomString4' #, 'I<3DavidJMalan' RandomString2, 'RandomString4'-- often crashes, 'RandomString5'--cool loop
 max_mass     : 1_000_000
 max_distance : 100

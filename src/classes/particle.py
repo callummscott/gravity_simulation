@@ -30,3 +30,12 @@ class Particle:
 
     def momentum(self):
         return self.mass*self.velocity
+
+    @classmethod
+    def from_test_case(cls, data):
+        return Particle(len(data), data["mass"], data["position"], data["velocity"])
+        # mass = float
+        # position = [x,y,z]
+        # velocity = []
+    
+    

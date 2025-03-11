@@ -2,7 +2,7 @@
 
 from random import random, uniform
 
-from gravity_simulation.classes.config import Config
+from src.classes.config import Config
 
 CONFIG = Config()
 
