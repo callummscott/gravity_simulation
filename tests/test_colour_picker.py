@@ -146,17 +146,3 @@ def test_rgb_to_0_1_format_value_error(rgb_colour):
 def test_rgb_to_0_1_format_type_error(rgb_colour):
     with pytest.raises(TypeError):
         rgb_to_0_1_format(rgb_colour)
-
-
-if __name__ == "__main__":
-    test_get_colours_rgb()
-    test_get_colours_rgb_key_error()
-    test_get_colours_rgb_type_error()
-
-    test_choose_distinct_rgb()
-    test_choose_distinct_rgb_type_error()
-    test_choose_distinct_rgb_value_error()
-    
-    test_rgb_to_0_1_format()
-    test_rgb_to_0_1_format_type_error()
-    test_rgb_to_0_1_format_value_error()

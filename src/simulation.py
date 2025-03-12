@@ -86,23 +86,29 @@ def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
     
     return particles
 
+def calculate_kinetic_energy_of_particles(particles: dict) -> float:
+    total_kinetic = 0
+    for particle in particles.values():
+        total_kinetic += .5*particle.mass*np.linalg.norm(particle.velocity)**2
+    return total_kinetic
 
-def calculate_energy_of_particles(particles: dict) -> float:
-        total_energy = 0
-        for particle in particles.values():
-            distances = get_distance_matrix(particles)
-            # Calculate kinetic energy of particles
-            kinetic_energy = .5*particle.mass*np.linalg.norm(particle.velocity)**2
-            # Calculate potential energy of particles
-            potential_energy = 0
-            if len(particles) > 1: #* Skips calculation of potential energy if only 1 particle exists
-                for i in range(len(particles)):
-                    particle_1 = particles[i]
-                    for j in range(i+1, len(particles)):
-                        particle_2 = particles[j]
-                        potential_energy -= CONFIG.G*particle_1.mass*particle_2.mass / distances[i, j]
-            total_energy += kinetic_energy + potential_energy
-        return total_energy
+def calculate_potential_energy_of_particles(particles: dict) -> float:
+    total_potential = 0
+    distances = get_distance_matrix(particles)
+    if len(particles) > 1: #* Skips calculation of potential energy if only 1 particle exists
+        for i in range(len(particles)):
+            particle_1 = particles[i]
+            for j in range(i+1, len(particles)):
+                particle_2 = particles[j]
+                total_potential -= CONFIG.G*particle_1.mass*particle_2.mass / distances[i, j]
+        return total_potential
+    else:
+        return 0
+
+
+def calculate_total_energy_of_particles(particles: dict) -> float:
+    total_energy = calculate_kinetic_energy_of_particles(particles) + calculate_potential_energy_of_particles(particles)    
+    return total_energy
 
 
 def get_next_particle_states(particles: dict[int: Particle]) -> None:

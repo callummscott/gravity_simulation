@@ -239,27 +239,3 @@ def test_initialise_random_particles_value_error(n, max_mass, max_distance, max_
     with pytest.raises(ValueError):
         initialise_random_particles(n, max_mass, max_distance, max_speed)
 
-    
-
-if __name__ == "__main__":
-    test_get_mass()
-    test_get_mass_type_error()
-    test_get_mass_value_error()
-    
-    test_get_position()
-    test_get_position_type_error()
-    test_get_position_value_error()
-
-    test_get_velocity()
-    test_get_velocity_type_error()
-    test_get_velocity_value_error()
-
-    test_n_is_valid()
-    test_n_is_valid_type_error()
-    test_n_is_vlaid_value_error()
-    
-    test_get_masses()
-    test_get_positions()
-    test_get_velocities()
-
-    test_get_random_input_variables()

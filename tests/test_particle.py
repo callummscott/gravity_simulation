@@ -57,9 +57,3 @@ def test_particle__init__type_error(id, mass, pos, vel):
 def test_particle__init__value_error(id, mass, pos, vel):
     with pytest.raises(ValueError):
         Particle(id, mass, pos, vel)
-
-
-if __name__ == "__main__":
-    test_particle()
-    test_particle__init__type_error()
-    test_particle__init__value_error()

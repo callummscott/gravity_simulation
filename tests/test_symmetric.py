@@ -39,10 +39,3 @@ def test_symmetric__setitem__(n, i, j, value):
     assert matrix[j, i] == value
     for i in range(n):
         assert matrix[i, i] == 0
-
-
-if __name__ == "__main__":
-    test_symmetric__new___n()
-    test_symmetric__new__type_error()
-    test_symmetric__new__value_error()
-    test_symmetric__setitem__()
