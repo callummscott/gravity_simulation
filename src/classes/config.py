@@ -4,6 +4,7 @@ from random import seed
 from yaml import safe_load
 
 class Config:
+    """ Class containing useful values and accessing user-defined variables """
 
     def __init__(self, output_file="sim.log"):
         

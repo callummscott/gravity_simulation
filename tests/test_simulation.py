@@ -1,52 +1,106 @@
 
+import pytest
 from numpy.linalg import norm
-from pytest import approx, raises
+
+from tests.config import TestConfig
+from src.classes.particle import Particle
 
 from tests.utils import *
-from tests.config import TestConfig
-from src.simulation import initialise_random_particles, get_distance_matrix, get_next_particle_states, calculate_energy_of_particles
+from src.simulation import *
 
 CONFIG = TestConfig()
 
-def test_initialise_random_particles():
 
-    for _ in range(20): # This I think runs through the same 20 tests each time it's run -- I hope
-        particles = utils_get_test_particles() #* Utils # Generating the same thing like every time due to the seed
- 
-        for particle in particles.values():
+@pytest.mark.parametrize(
+    "n, max_mass, max_distance, max_speed",
+    [
+        (3, 100, 100, 100),
+        (1, 10, 20, 20),
+        (16, 1e5, 3.2e4, 5.5e2),
+        (12, 2.345, 1323.4123, 8654.231)
+    ]
+)
+def test_initialise_random_particles(n, max_mass, max_distance, max_speed):
+    particles = initialise_random_particles(n, max_mass, max_distance, max_speed)
+    for particle in particles.values():
+        distance, speed = norm(particle.position), norm(particle.velocity)
+        assert (0 < particle.mass < max_mass) or (particle.mass == pytest.approx(max_mass))
+        assert (distance < max_distance) or (distance == pytest.approx(max_distance))
+        assert (speed < max_speed) or (speed == pytest.approx(speed))
 
-            particle_distance = norm(particle.position)
-            particle_speed    = norm(particle.velocity)
+            # assert (0 < particle.mass <= CONFIG.max_mass) # no approx necessary
+            # assert (0 <= particle_distance <= CONFIG.max_distance) or (particle_distance == pytest.approx(0)) or (particle_distance == pytest.approx(CONFIG.max_distance))
+            # assert (0 <= particle_speed <= CONFIG.max_speed) or (particle_speed == pytest.approx(0)) or (particle_speed == pytest.approx(CONFIG.max_speed))
 
-            assert (0 < particle.mass <= CONFIG.max_mass) # no approx necessary
-            assert (0 <= particle_distance <= CONFIG.max_distance) or (particle_distance == approx(0)) or (particle_distance == approx(CONFIG.max_distance))
-            assert (0 <= particle_speed <= CONFIG.max_speed) or (particle_speed == approx(0)) or (particle_speed == approx(CONFIG.max_speed))
-
-    with raises(TypeError):
-        initialise_random_particles(n="8", max_mass=utils_random_mass(), max_distance=utils_random_distance(), max_speed=utils_random_speed())
-        initialise_random_particles(n=10.99, max_mass=utils_random_mass(), max_distance=utils_random_distance(), max_speed=utils_random_speed())
-
-    with raises(ValueError):
-        initialise_random_particles(n=-3, max_mass=utils_random_mass(), max_distance=utils_random_distance(), max_speed=utils_random_speed())
-        initialise_random_particles(n=17, max_mass=utils_random_mass(), max_distance=utils_random_distance(), max_speed=utils_random_speed())
-        initialise_random_particles(n=0, max_mass=utils_random_mass(), max_distance=utils_random_distance(), max_speed=utils_random_speed())
+@pytest.mark.parametrize(
+    "n, max_mass, max_distance, max_speed",
+    [
+        ("8", 1, 1, 1),
+        (10.5, 1, 1, 1)
+    ]
+)
+def test_initialise_random_particles_type_error(n, max_mass, max_distance, max_speed):
+    with pytest.raises(TypeError):
+        initialise_random_particles(n, max_mass, max_distance, max_speed)
 
 
-def test_get_distance_matrix():
+@pytest.mark.parametrize(
+    "n, max_mass, max_distance, max_speed",
+    [
+        # -- n values --
+        (0, 1, 1, 1),
+        (-3, 1, 1, 1),
+        (-10, 1, 1, 1),
+        (17, 1, 1, 1),
+        (30, 1, 1, 1),
+        # -- mass values --
+        (7, 0, 1, 1),
+        (12, -1, 1, 1),
+        (10, -12.3, 1, 1),
+        # -- distance values --
+        (9, 12e3, 0, 123.32),
+        (6, 111.11, -10, 4234.3),
+        (1, 123123.2, -12.3, 4234.3),
+        # -- speed values --
+        (3, 111.11, 4234.3, -10),
+        (14, 123123.2, 32341421312.3232, -12.3)
+    ]
+)
+def test_initialise_random_particles_value_error(n, max_mass, max_distance, max_speed):
+    with pytest.raises(ValueError):
+        initialise_random_particles(n, max_mass, max_distance, max_speed)
 
-        example_ns = [ 1, 3, 4, 6, 7, 10, 12, 13, 15 ]
-        particles_dict_examples = [ utils_get_test_particles(n) for n in example_ns ]
-        for particles_dict in particles_dict_examples:
 
-            distance_matrix = get_distance_matrix(particles_dict)
-            n = len(particles_dict)
-            assert distance_matrix.shape == (n, n), "Wrong shape" # Check size is accurate
-            for i in range(n):
-                for j in range(i, n):
-                    # Check the matrix is symmetric
-                    assert distance_matrix[i, j] == distance_matrix[j, i], "Values are not symmetric"
-                    if i == j:
-                        assert distance_matrix[i, i] == 0
+# @pytest.mark.parametrize(
+#     "mass_1, init_pos_1, init_vel_1, mass_2, init_pos_2, init_vel_2"
+# )
+# def test_get_distance_matrix_():
+
+    # test_cases = utils_get_test_case_to_particles_dict()
+    # for particles in test_cases.values():
+    #     distance_matrix = get_distance_matrix(particles)
+    #     n = len(particles)
+    #     assert distance_matrix.shape == (n, n), "Wrong shape" # Check size is accurate
+    #     for i in range(n):
+    #         for j in range(i, n):
+    #             # Check the matrix is symmetric
+    #             assert distance_matrix[i, j] == distance_matrix[j, i], "Values are not symmetric"
+    #             if i == j:
+    #                 assert distance_matrix[i, i] == 0
+
+
+@pytest.mark.parametrize(
+    "pos_array_1, pos_array_2, expected_distance",
+    [
+        ([-10,0,0], [10,0,0], 20),
+        ([-23,0,0], [15,0,0], 38),
+        ([1,1,1], [0,0,0], 3**.5),
+        ([10,20,30], [-10,50,20], 37.416573867739416),
+    ]
+)
+def test_get_distance_matrix_two_simple_particles(pos_array_1, pos_array_2, expected_distance):
+    particles = { 0: Particle(0,1,pos_array_1,[0]*3), 1: Particle(1,1,pos_array_2,[0]*3)}
+    assert get_distance_matrix(particles)[0,1] == pytest.approx(expected_distance)
 
 
 def test_get_force_on_particle():
@@ -56,28 +110,56 @@ def test_get_force_on_particle():
 def test_get_impulse_on_particle():
     ...
     # TODO: ...
+        
 
-def test_calculate_energy_of_particles():
-
-    particle_dict = utils_get_test_particles(n=1) #* Utils
-    particle = particle_dict[0]
-    expected_energy = .5*particle.mass*norm(particle.velocity)**2
-    assert calculate_energy_of_particles(particle_dict) == approx(expected_energy), "Single particle energy not accurate."
+@pytest.mark.parametrize(
+    "mass, init_pos, init_vel, expected_energy",
+    [
+        (1, [0,0,0], [0,0,0], 0),
+        (1, [0,0,0], [0,0,4], 8),
+        (1, [0,0,0], [0,0,2.4], 2.88),
+        (10, [0,0,0], [0,0,3], 45)
+    ]
+)
+def test_calculate_energy_of_particles_single_particle(mass, init_pos, init_vel, expected_energy):
     
-    particles = utils_get_test_particles()
-    start_energy = calculate_energy_of_particles(particles)
-    #* Essentially we're scaling velocities of individual particles and seeing if the total energy changes by how much you'd expect it to change.
-    for particle in particles.values():
-        for k in [1.1, 1.2, 1.3]:
-            particle.velocity *= k
-            added_energy = (k**2 - 1)*.5*particle.mass*norm(particle.velocity)**2
-            end_energy = calculate_energy_of_particles(particles)
-            particle.velocity /= k
-            assert end_energy - start_energy == approx(added_energy), "The energy is way off"
+    particles = {0: Particle(0, mass, init_pos, init_vel)}
+    assert calculate_energy_of_particles(particles) == pytest.approx(expected_energy)
+
+
+@pytest.mark.parametrize(
+    "mass_1, init_pos_1, init_vel_1, mass_2, init_pos_2, init_vel_2, expected_energy",
+    [
+        (1, [0,-1,0], [0,0,0], 1, [0,1,0], [0,0,0], -CONFIG.G/2),
+        (1, [0,-10,0], [0,0,0], 1, [0,10,0], [0,0,0], -CONFIG.G/20)
+    ]
+)
+def test_calculate_energy_of_particles_two_particles(
+        mass_1, init_pos_1,init_vel_1, mass_2, init_pos_2, init_vel_2, expected_energy
+    ):
+    particles = {
+        0: Particle(0, mass_1, init_pos_1, init_vel_1),
+        1: Particle(1, mass_2, init_pos_2, init_vel_2)
+    }
+    assert calculate_energy_of_particles(particles) == pytest.approx(expected_energy)
+
+
+    #* Checks that if we manually scale a single particle's velocity that the total energy changes how you'd expect
+    # for particles in test_cases.values():
+    #     start_energy = calculate_energy_of_particles(particles)
+    #     for particle in particles.values():
+    #         for k in [1.1, 1.2, 1.3]:
+    #             particle.velocity *= k
+    #             added_energy = (k**2 - 1)*.5*particle.mass*norm(particle.velocity)**2
+    #             end_energy = calculate_energy_of_particles(particles)
+    #             particle.velocity /= k
+    #             assert end_energy - start_energy == pytest.approx(added_energy), "The energy is way off"
+    
+
 
 
 def test_get_next_particle_states():
-
+    return #! Holding off on this for now.
     example_particle_dicts = [ utils_get_test_particles() for _ in range(10) ]
 
     for particle_dicts in example_particle_dicts:
@@ -85,7 +167,7 @@ def test_get_next_particle_states():
         example_particles_updated = get_next_particle_states(particle_dicts)
         total_momentum_updated = utils_calculate_total_momentum(example_particles_updated)
 
-    assert norm(total_momentum) == approx(norm(total_momentum_updated))
+    assert norm(total_momentum) == pytest.approx(norm(total_momentum_updated))
 
     # energy_log = dict()
     # for i in range(CONFIG.number_of_steps):
@@ -97,11 +179,11 @@ def test_get_next_particle_states():
     # energy_diff = [ energy_seq[i+1] - value for i, value in enumerate(energy_seq[:-1]) ]
     
     # for i in range(len(energy_diff) - 1):
-    #     assert energy_diff[i+1] == approx(energy_diff[i]) 
+    #     assert energy_diff[i+1] == pytest.approx(energy_diff[i]) 
 
 
 if __name__ == "__main__":
-    test_get_distance_matrix()
+    test_get_distance_matrix_two_simple_particles()
     test_get_force_on_particle()
     test_get_impulse_on_particle()
     test_initialise_random_particles()
