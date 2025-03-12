@@ -1,4 +1,5 @@
 import pytest
+
 from src.classes.symmetric import Symmetric
 
 
@@ -7,15 +8,18 @@ def test_symmetric__new___n(n):
     assert Symmetric(n).size == n**2
     assert Symmetric(n).shape == (n,n)
 
+
 @pytest.mark.parametrize( "n", ["test", (1, 1), [], 2.3] )
 def test_symmetric__new__type_error(n):
     with pytest.raises(TypeError):
         Symmetric(n)
 
-@pytest.mark.parametrize( "n", [0, -5, -1, -100])
+
+@pytest.mark.parametrize( "n", [0, -5, -1, -100] )
 def test_symmetric__new__value_error(n):
     with pytest.raises(ValueError):
         Symmetric(n)
+
 
 @pytest.mark.parametrize(
     "n, i, j, value",
@@ -35,3 +39,10 @@ def test_symmetric__setitem__(n, i, j, value):
     assert matrix[j, i] == value
     for i in range(n):
         assert matrix[i, i] == 0
+
+
+if __name__ == "__main__":
+    test_symmetric__new___n()
+    test_symmetric__new__type_error()
+    test_symmetric__new__value_error()
+    test_symmetric__setitem__()

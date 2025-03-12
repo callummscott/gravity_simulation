@@ -5,71 +5,10 @@ from numpy.linalg import norm
 from tests.config import TestConfig
 from src.classes.particle import Particle
 
-from tests.utils import *
 from src.simulation import *
 
+
 CONFIG = TestConfig()
-
-
-@pytest.mark.parametrize(
-    "n, max_mass, max_distance, max_speed",
-    [
-        (3, 100, 100, 100),
-        (1, 10, 20, 20),
-        (16, 1e5, 3.2e4, 5.5e2),
-        (12, 2.345, 1323.4123, 8654.231)
-    ]
-)
-def test_initialise_random_particles(n, max_mass, max_distance, max_speed):
-    particles = initialise_random_particles(n, max_mass, max_distance, max_speed)
-    for particle in particles.values():
-        distance, speed = norm(particle.position), norm(particle.velocity)
-        assert (0 < particle.mass < max_mass) or (particle.mass == pytest.approx(max_mass))
-        assert (distance < max_distance) or (distance == pytest.approx(max_distance))
-        assert (speed < max_speed) or (speed == pytest.approx(speed))
-
-            # assert (0 < particle.mass <= CONFIG.max_mass) # no approx necessary
-            # assert (0 <= particle_distance <= CONFIG.max_distance) or (particle_distance == pytest.approx(0)) or (particle_distance == pytest.approx(CONFIG.max_distance))
-            # assert (0 <= particle_speed <= CONFIG.max_speed) or (particle_speed == pytest.approx(0)) or (particle_speed == pytest.approx(CONFIG.max_speed))
-
-@pytest.mark.parametrize(
-    "n, max_mass, max_distance, max_speed",
-    [
-        ("8", 1, 1, 1),
-        (10.5, 1, 1, 1)
-    ]
-)
-def test_initialise_random_particles_type_error(n, max_mass, max_distance, max_speed):
-    with pytest.raises(TypeError):
-        initialise_random_particles(n, max_mass, max_distance, max_speed)
-
-
-@pytest.mark.parametrize(
-    "n, max_mass, max_distance, max_speed",
-    [
-        # -- n values --
-        (0, 1, 1, 1),
-        (-3, 1, 1, 1),
-        (-10, 1, 1, 1),
-        (17, 1, 1, 1),
-        (30, 1, 1, 1),
-        # -- mass values --
-        (7, 0, 1, 1),
-        (12, -1, 1, 1),
-        (10, -12.3, 1, 1),
-        # -- distance values --
-        (9, 12e3, 0, 123.32),
-        (6, 111.11, -10, 4234.3),
-        (1, 123123.2, -12.3, 4234.3),
-        # -- speed values --
-        (3, 111.11, 4234.3, -10),
-        (14, 123123.2, 32341421312.3232, -12.3)
-    ]
-)
-def test_initialise_random_particles_value_error(n, max_mass, max_distance, max_speed):
-    with pytest.raises(ValueError):
-        initialise_random_particles(n, max_mass, max_distance, max_speed)
-
 
 # @pytest.mark.parametrize(
 #     "mass_1, init_pos_1, init_vel_1, mass_2, init_pos_2, init_vel_2"
@@ -183,8 +122,10 @@ def test_get_next_particle_states():
 
 
 if __name__ == "__main__":
+    test_calculate_energy_of_particles_single_particle()
+    test_calculate_energy_of_particles_two_particles()
+
     test_get_distance_matrix_two_simple_particles()
     test_get_force_on_particle()
     test_get_impulse_on_particle()
-    test_initialise_random_particles()
     test_get_next_particle_states()

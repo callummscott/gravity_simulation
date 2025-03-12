@@ -2,17 +2,17 @@
 
 from random import random, uniform
 from numpy import isfinite
+from numpy.linalg import norm
 from src.classes.config import Config
+from src.classes.particle import Particle
 
 CONFIG = Config()
 
 
-def vector_length(vector: list):
-    return sum(x**2 for x in vector)**.5
-
-
 ##----- Single Proprties -----##
+
 def get_mass(max_mass: float):
+    """ Returns single float value in the range (0, max_mass] """
     if max_mass <= 0:
         raise ValueError("Masses cannot be less than or equal to 0")
     if not isfinite(max_mass):
@@ -23,15 +23,17 @@ def get_mass(max_mass: float):
     else:
         return result
 
+
 def get_position(max_distance: float):
+    """  """
     if max_distance <= 0:
         raise ValueError("Distances cannot be less than or equal to 0")
     if not isfinite(max_distance):
         raise ValueError("Maximum distance is too large")
     vector = [uniform(-1,1) for _ in range(3)]
-    length = vector_length(vector)
-    position = [ max_distance*x / length for x in vector]
+    position = [ max_distance*x / norm(vector) for x in vector]
     return position
+
 
 def get_velocity(max_speed: float):
     if max_speed < 0:
@@ -39,46 +41,36 @@ def get_velocity(max_speed: float):
     if not isfinite(max_speed):
         raise ValueError("Maximum speed is too large")
     vector = [uniform(-1,1) for _ in range(3) ]
-    length = vector_length(vector)
-    velocity = [ max_speed*x / length for x in vector]
+    velocity = [ max_speed*x / norm(vector) for x in vector]
     return velocity
 
 
 ##----- Multiple properties -----##
-def get_masses(N: int, max_mass: float):
-    if not isinstance(N, int):
-        raise TypeError("n is not an integer")
-    elif N > 16:
+
+def n_is_valid(n: int) -> bool:
+    if not isinstance(n, int):
+        raise TypeError("n must be an integer")
+    elif n > 16:
         raise ValueError("Too many particles (>16) for the number of colours available")
-    elif N == 0:
-        raise ValueError("At least one mass must be specified")
-    elif N < 0:
+    elif n == 0:
+        raise ValueError("n must be at least 1")
+    elif n < 0:
         raise ValueError("n cannot be negative")
-    return [get_mass(max_mass) for _ in range(N)]
+    return True
+
+def get_masses(n: int, max_mass: float):
+    if n_is_valid(n):
+        return [get_mass(max_mass) for _ in range(n)]
 
 
-def get_positions(N: int, max_distance: float):
-    if not isinstance(N, int):
-        raise TypeError
-    elif N > 16:
-        raise ValueError("Too many particles (>16) for the number of colours available")
-    elif N == 0:
-        raise ValueError("At least one number must be specified")
-    elif N < 0:
-        raise ValueError("n cannot be negative")
-    return [get_position(max_distance) for _ in range(N)]
+def get_positions(n: int, max_distance: float):
+    if n_is_valid(n):
+        return [get_position(max_distance) for _ in range(n)]
 
 
-def get_velocities(N, max_speed):
-    if not isinstance(N, int):
-        raise TypeError
-    elif N > 16:
-        raise ValueError("Too many particles (>16) for the number of colours available")
-    elif N == 0:
-        raise ValueError("At least one number must be specified")
-    elif N < 0:
-        raise ValueError("n cannot be negative")
-    return [get_velocity(max_speed) for _ in range(N)]
+def get_velocities(n:int, max_speed: float):
+    if n_is_valid(n):
+        return [get_velocity(max_speed) for _ in range(n)]
 
 
 def get_random_input_variables(n: int, max_mass, max_distance, max_speed):
@@ -90,3 +82,20 @@ def get_random_input_variables(n: int, max_mass, max_distance, max_speed):
     velocities = get_velocities(n, max_speed)
 
     return (masses, positions, velocities)
+
+
+def initialise_random_particles(n: int, max_mass: float, max_distance: float, max_speed: float) -> dict:
+    """ Sets up and returns a dict of n Particles with random attributes """       
+
+    if not isinstance(n, int):
+        raise TypeError
+    elif n < 1:
+        raise ValueError("N cannot be less than 1")
+    elif n > 16:
+        raise ValueError("Too many particles for the number of colours")
+    
+    masses, initial_positions, initial_velocities = get_random_input_variables(n, max_mass, max_distance, max_speed)
+    CONFIG.logger.info("Input variables recieved")
+
+    particles = { i: Particle( id=i, mass=masses[i], initial_position=initial_positions[i], initial_velocity=initial_velocities[i]) for i in range(n) }
+    return particles

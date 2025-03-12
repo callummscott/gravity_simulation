@@ -1,38 +1,20 @@
 """ Retrives and sets up initial particle data from `particle_setup`, iteratively calculates and logs particle motion for defined period converts positional data to (x,y,z) coordinates and plots results in 3D  """
 
 from time import time
-from numpy.linalg import norm
-from src.plotter import *
-from src.simulation import *
 from src.classes.config import Config
 
-from src.simulation import get_distance_matrix # Testing
+from src.plotter import *
+from particle_setup import initialise_random_particles
+from src.simulation import collision_handler, get_updated_position_logs, get_next_particle_states
+
 
 CONFIG = Config()
-
-def calculate_energy_of_particles(particles: dict):
-    total_energy = 0
-    for id in particles:
-        particle = particles[id]
-        particle_mass = particle.mass
-        particle_velocity = particle.velocity
-        distances = get_distance_matrix(particles)
-
-        kinetic_energy = .5*particle_mass*norm(particle_velocity)**2
-        potential_energy = 0
-        for other_id in particles:
-            if other_id != id:
-                other_particle = particles[other_id]
-                potential_energy += CONFIG.G*particle.mass*other_particle.mass / distances[id, other_id]
-        
-        total_energy += kinetic_energy + potential_energy
-    return total_energy
 
 
 def main():
 
     start_time = time()
-    print("Starting simulation.")
+    print("Starting simulation...")
 
     particles = initialise_random_particles(
         n            = CONFIG.number_of_particles,
@@ -43,13 +25,13 @@ def main():
     CONFIG.logger.info("Particles initialised")
 
     position_logs = { id: PositionLog() for id in particles }
-    for i in range(CONFIG.number_of_steps):
-        if i % 50 == 0:
-            CONFIG.logger.info(f"Step: {i}, Energy = {calculate_energy_of_particles(particles):_}")
+    for i in range(CONFIG.number_of_steps): #* `i` reserved for logging, don't delete
         particles = collision_handler(particles)
         position_logs = get_updated_position_logs(position_logs, particles)
         particles = get_next_particle_states(particles)
 
+    print("Simulation complete.")
+    print("Processing position data...")
     plot_data = get_filtered_xyz_values(position_logs)
 
     for finish_time in plot_results_3d(plot_data): # Yields the `finish_time` before the plot is closed by the user.
@@ -57,6 +39,5 @@ def main():
         print(f"Total runtime: {total_time:.2f}s")
 
     
-
 if __name__ == "__main__":
     main()

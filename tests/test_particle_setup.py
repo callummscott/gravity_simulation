@@ -1,7 +1,6 @@
 
 import pytest
 from numpy.linalg import norm
-from random import random, choice
 
 from src.particle_setup import *
 
@@ -31,6 +30,7 @@ def test_get_mass_value_error(max_mass):
 def test_get_mass_type_error(max_mass):
     with pytest.raises(TypeError):
         get_mass(max_mass)
+
 
 ## GET_POSITION ##
 
@@ -86,49 +86,41 @@ def test_get_velocity_type_error(max_speed):
         get_velocity(max_speed)
 
 
+## N_IS_VALID ##
+
+@pytest.mark.parametrize( "n", [1, 10, 12, 10, 16, 4, 7] )
+def test_n_is_valid(n):
+    assert n_is_valid(n)
+
+
+@pytest.mark.parametrize( "n", [0, 17, -10, 20, 128] )
+def test_n_is_vlaid_value_error(n):
+    with pytest.raises(ValueError):
+        n_is_valid(n)
+
+
+@pytest.mark.parametrize( "n", ["test", [1,2,3], None, [], 2.34])
+def test_n_is_valid_type_error(n):
+    with pytest.raises(TypeError):
+        n_is_valid(n)
+
+
 ## GET_MASSES ##
 
 @pytest.mark.parametrize(
     "n, max_mass",
     [
-        (1, 10),
-        (10, 1000),
-        (12, 154.43),
-        (10, 123.32e5),
-        (16, 123_323_76)
+        (1, 100),
+        (10, 40.43),
+        (3, 100_123_543),
+        (12, 34.34e14)
     ]
 )
 def test_get_masses(n, max_mass):
-    """ Tests: 1) that mass list is of expected length, 2) that maximum"""
-    assert len(get_masses(n,  max_mass)) == n
+    assert len(get_masses(n, max_mass)) == n
+    for mass in get_masses(n, max_mass):
+        assert (0 < mass < max_mass) or (mass == pytest.approx(0)) or (mass == pytest.approx(max_mass))
 
-
-@pytest.mark.parametrize(
-    "n, max_mass",
-    [
-        (-56, 100),
-        (0, 100),
-        (20, 100),
-        (100, 100)
-    ]
-)
-def test_get_masses_value_error(n, max_mass):
-    with pytest.raises(ValueError):
-        get_masses(n, max_mass)
-
-
-@pytest.mark.parametrize(
-    "n, max_mass",
-    [
-        (37.2, 100),
-        ("12.4", 100),
-        (201.4, 100),
-        ([123], 100),
-    ]
-)
-def test_get_masses_type_error(n, max_mass):
-    with pytest.raises(TypeError):
-        get_masses(n, max_mass)
 
 ## GET_POSITIONS ##
 
@@ -146,22 +138,6 @@ def test_get_positions(n, max_distance):
     for position in get_positions(n, max_distance):
         distance = norm(position)
         assert (0 < distance < max_distance) or (distance == pytest.approx(0)) or (distance == pytest.approx(max_distance))
-
-
-@pytest.mark.parametrize(
-    "n, max_distance", [(17, 1234.567), (0, 256.256e8), (-30, 43.4)]
-)
-def test_get_positions_value_error(n, max_distance):
-    with pytest.raises(ValueError):
-        get_positions(n, max_distance)
-
-
-@pytest.mark.parametrize(
-    "n, max_distance", [([1,2], 1234.567), (3.14159, 64), (float('inf'), 100_000)]
-)
-def test_get_positions_type_error(n, max_distance):
-    with pytest.raises(TypeError):
-        get_positions(n, max_distance)
 
 
 ## GET_VELOCITIES ##
@@ -185,21 +161,6 @@ def test_get_velocities(n, max_speed):
         speed = norm(velocity)
         assert (0 < speed < max_speed) or (speed == pytest.approx(0)) or (speed == pytest.approx(max_speed))
 
-@pytest.mark.parametrize(
-    "n, max_speed", [(100, 1e4), (17, 1_200.6544), (0, 754444.4), (-13, 55), (-1_900, 342e62)]
-)
-def test_get_velocities_value_error(n, max_speed):
-    with pytest.raises(ValueError):
-        get_velocities(n, max_speed)
-
-
-@pytest.mark.parametrize(
-    "n, max_speed", [("2", 543), (4.568876, 867.65)]
-)
-def test_get_velocities_type_error(n, max_speed):
-    with pytest.raises(TypeError):
-        get_velocities(n, max_speed)
-
 
 @pytest.mark.parametrize(
     "n, max_mass, max_distance, max_speed",
@@ -214,13 +175,89 @@ def test_get_random_input_variables(n, max_mass, max_distance, max_speed):
     assert len(variables) == 3
     masses, positions, velocities = variables
     assert len(masses) == len(positions) == len(velocities)
+
+
+
+## INITIALISE_RANDOM_PARTICLES ##
+
+@pytest.mark.parametrize(
+    "n, max_mass, max_distance, max_speed",
+    [
+        (3, 100, 100, 100),
+        (1, 10, 20, 20),
+        (16, 1e5, 3.2e4, 5.5e2),
+        (12, 2.345, 1323.4123, 8654.231)
+    ]
+)
+def test_initialise_random_particles(n, max_mass, max_distance, max_speed):
+    particles = initialise_random_particles(n, max_mass, max_distance, max_speed)
+    for particle in particles.values():
+        distance, speed = norm(particle.position), norm(particle.velocity)
+        assert (0 < particle.mass < max_mass) or (particle.mass == pytest.approx(max_mass))
+        assert (distance < max_distance) or (distance == pytest.approx(max_distance))
+        assert (speed < max_speed) or (speed == pytest.approx(speed))
+
+            # assert (0 < particle.mass <= CONFIG.max_mass) # no approx necessary
+            # assert (0 <= particle_distance <= CONFIG.max_distance) or (particle_distance == pytest.approx(0)) or (particle_distance == pytest.approx(CONFIG.max_distance))
+            # assert (0 <= particle_speed <= CONFIG.max_speed) or (particle_speed == pytest.approx(0)) or (particle_speed == pytest.approx(CONFIG.max_speed))
+
+@pytest.mark.parametrize(
+    "n, max_mass, max_distance, max_speed",
+    [
+        ("8", 1, 1, 1),
+        (10.5, 1, 1, 1)
+    ]
+)
+def test_initialise_random_particles_type_error(n, max_mass, max_distance, max_speed):
+    with pytest.raises(TypeError):
+        initialise_random_particles(n, max_mass, max_distance, max_speed)
+
+
+@pytest.mark.parametrize(
+    "n, max_mass, max_distance, max_speed",
+    [
+        # -- n values --
+        (0, 1, 1, 1),
+        (-3, 1, 1, 1),
+        (-10, 1, 1, 1),
+        (17, 1, 1, 1),
+        (30, 1, 1, 1),
+        # -- mass values --
+        (7, 0, 1, 1),
+        (12, -1, 1, 1),
+        (10, -12.3, 1, 1),
+        # -- distance values --
+        (9, 12e3, 0, 123.32),
+        (6, 111.11, -10, 4234.3),
+        (1, 123123.2, -12.3, 4234.3),
+        # -- speed values --
+        (3, 111.11, 4234.3, -10),
+        (14, 123123.2, 32341421312.3232, -12.3)
+    ]
+)
+def test_initialise_random_particles_value_error(n, max_mass, max_distance, max_speed):
+    with pytest.raises(ValueError):
+        initialise_random_particles(n, max_mass, max_distance, max_speed)
+
     
 
 if __name__ == "__main__":
     test_get_mass()
+    test_get_mass_type_error()
+    test_get_mass_value_error()
+    
     test_get_position()
-    test_get_velocity()
+    test_get_position_type_error()
+    test_get_position_value_error()
 
+    test_get_velocity()
+    test_get_velocity_type_error()
+    test_get_velocity_value_error()
+
+    test_n_is_valid()
+    test_n_is_valid_type_error()
+    test_n_is_vlaid_value_error()
+    
     test_get_masses()
     test_get_positions()
     test_get_velocities()

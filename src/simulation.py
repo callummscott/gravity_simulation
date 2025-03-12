@@ -6,26 +6,7 @@ from src.classes.particle import Particle
 from src.classes.symmetric import Symmetric
 from src.classes.position_log import PositionLog
 
-from src.particle_setup import get_random_input_variables
-
 CONFIG = Config()
-
-
-def initialise_random_particles(n: int, max_mass: float, max_distance: float, max_speed: float) -> dict:
-    """ Sets up and returns a dict of n Particles with random attributes """       
-
-    if not isinstance(n, int):
-        raise TypeError
-    elif n < 1:
-        raise ValueError("N cannot be less than 1")
-    elif n > 16:
-        raise ValueError("Too many particles for the number of colours")
-    
-    masses, initial_positions, initial_velocities = get_random_input_variables(n, max_mass, max_distance, max_speed)
-    CONFIG.logger.info("Input variables recieved")
-
-    particles = { i: Particle( id=i, mass=masses[i], initial_position=initial_positions[i], initial_velocity=initial_velocities[i]) for i in range(n) }
-    return particles
 
 
 def get_distance_matrix(particles: dict) -> Symmetric:

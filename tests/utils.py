@@ -1,51 +1,52 @@
 # from random import random, randint
-import random
 import json
-import numpy as np
+from random import random, randint, seed
+from numpy import array, float64, ndarray
 from tests.config import TestConfig
+
 from src.classes.particle import Particle
-from src.simulation import initialise_random_particles
+from src.particle_setup import initialise_random_particles
 
     
 CONFIG = TestConfig()
 
-random.seed("testing purposes")
+seed("testing purposes")
 
 def utils_random_mass():
-    result = random.random()*CONFIG.max_mass
+    result = random()*CONFIG.max_mass
     if result == 0:
         return utils_random_mass()
     else:
         return result
 
 def utils_random_distance():
-    return random.random()*CONFIG.max_distance
+    return random()*CONFIG.max_distance
 
 
 def utils_random_speed():
-    return random.random()*CONFIG.max_speed
+    return random()*CONFIG.max_speed
 
 
 def utils_get_test_particles(n=None, max_mass=None, max_distance=None, max_speed=None) -> dict[int:Particle]:
     """ Takes in constraints on random test particles and returns a dictionary of particles """
     #* Potential errors here will be handled by the initialise_random_particles function
     if n==None:
-        final_n = random.randint(1, 16)
+        final_n = randint(1, 16)
     else:
         final_n = n
 
     if max_mass == None:
-        final_mass = random.random()*CONFIG.max_mass
+        final_mass = random()*CONFIG.max_mass
     else:
         final_mass = max_mass
 
     if max_distance == None:
-        final_distance = random.random()*CONFIG.max_distance
+        final_distance = random()*CONFIG.max_distance
     else:
         final_distance = max_distance
         
     if max_speed == None:
-        final_speed = random.random()*CONFIG.max_speed
+        final_speed = random()*CONFIG.max_speed
     else:
         final_speed = max_speed
 
@@ -53,9 +54,9 @@ def utils_get_test_particles(n=None, max_mass=None, max_distance=None, max_speed
 
     return particles
 
-def utils_calculate_total_momentum(particles: dict) -> np.ndarray:
+def utils_calculate_total_momentum(particles: dict) -> ndarray:
     """ Takes in a particles dictionary as input, returns total momentum numpy array """
-    total_momentum = np.array([.0,.0,.0], dtype=np.float64)
+    total_momentum = array([.0,.0,.0], dtype=float64)
     for particle in particles.values():
         total_momentum += particle.momentum()
     return total_momentum
@@ -79,6 +80,7 @@ def utils_particles_to_json(n=None, max_mass=None, max_distance=None, max_speed=
     with open("tests/example_particles.json", 'w') as jsonfile:
         # jsonfile.write(json_data) #* Commented to stop me from accidentally using it.
         pass
+
 
 def utils_get_test_case_to_particles_dict() -> dict[int:dict]:
     with open("tests/example_particles.json", "r") as jsonfile:
