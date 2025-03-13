@@ -1,5 +1,6 @@
 """ Program to generate 3D plot of n-particle motion under the influence of gravity """
-import numpy as np
+from numpy import empty, nan, ndarray
+from numpy.linalg import norm
 
 from src.classes.config import Config
 from src.classes.particle import Particle
@@ -14,18 +15,20 @@ def get_distance_matrix(particles: dict) -> Symmetric:
     distance_matrix = Symmetric(len(particles))
     remaining_particle_ids = set(particles)
 
-    distance_matrix[:] = np.nan # Resets distances
+    distance_matrix[:] = nan # Resets distances
     for id in remaining_particle_ids:
         for jd in remaining_particle_ids:
-            distance_matrix[id, jd] = np.linalg.norm(particles[id].position - particles[jd].position)
+            distance_matrix[id, jd] = norm(particles[id].position - particles[jd].position)
     
     return distance_matrix
 
+def calculate_next_position(particle_id, particles):
+    ...
 
-def get_force_on_particle(particle_id: int, particles: dict, distance_cubed_matrix: Symmetric) -> np.array:
+def get_force_on_particle(particle_id: int, particles: dict, distance_cubed_matrix: Symmetric) -> ndarray:
     """  """
     # Requiring distance matrix as argument to save on re-computing it every single time
-    vector_sum = np.empty(3)
+    vector_sum = empty(3)
     for other_id, other_particle in particles.items():
         if other_id == particle_id:
             continue
@@ -36,8 +39,8 @@ def get_force_on_particle(particle_id: int, particles: dict, distance_cubed_matr
     return vector_sum   #* Don't forget the removed CONFIG.G referece
 
 
-def get_impulse_on_particle(particle_id: int, particles: dict, distance_cubed_matrix: Symmetric) -> np.array:
-    vector_sum = np.empty(3)
+def get_impulse_on_particle(particle_id: int, particles: dict, distance_cubed_matrix: Symmetric) -> ndarray:
+    vector_sum = empty(3)
     for other_id, other_particle in particles.items():
         if other_id == particle_id:
             continue
@@ -90,7 +93,7 @@ def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
 def calculate_kinetic_energy_of_particles(particles: dict) -> float:
     total_kinetic = 0
     for particle in particles.values():
-        total_kinetic += .5*particle.mass*np.linalg.norm(particle.velocity)**2
+        total_kinetic += .5*particle.mass*norm(particle.velocity)**2
     return total_kinetic
 
 

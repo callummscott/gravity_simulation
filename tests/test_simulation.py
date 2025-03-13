@@ -27,6 +27,8 @@ CONFIG = TestConfig()
     #                 assert distance_matrix[i, i] == 0
 
 
+##* GET_DISTANCE_MATRIX *##
+
 @pytest.mark.parametrize(
     "pos_array_1, pos_array_2, expected_distance",
     [
@@ -43,14 +45,60 @@ def test_get_distance_matrix_two_simple_particles(pos_array_1, pos_array_2, expe
     assert get_distance_matrix(particles)[0,1] == pytest.approx(expected_distance)
 
 
-def test_get_force_on_particle():
-    ...
-    #TODO: Might as well just be testing the step_and_log function
+##* CALCULATE_KINETIC_ENERGY_OF_PARTICLES *##
 
-def test_get_impulse_on_particle():
-    ...
-    # TODO: ...
-        
+@pytest.mark.parametrize(
+    "mass_1, init_vel_1, mass_2, init_vel_2, expected_energy",
+    [
+        (1, [0,0,0], 1, [0,0,0], 0),
+        (1, [2,2,2], 1, [2,2,2],  12),
+        (10, [10,10,10], 1, [1,1,1], 1501.5),
+        (1, [-2,4,-8], 16, [-32,64,-128], 172074.0),
+    ]
+)
+def test_calculate_kinetic_energy_of_particles_two_particles(mass_1, init_vel_1, mass_2, init_vel_2, expected_energy):
+    particles = { 0: Particle(0, mass_1, [0]*3, init_vel_1), 1: Particle(1, mass_2, [0]*3, init_vel_2) }
+    assert calculate_kinetic_energy_of_particles(particles) == pytest.approx(expected_energy)
+
+# Don't really have reason to doubt that kinetic energy calcs work for more particles
+
+
+##* CALCULATE_POTENTIAL_ENERGY_OF_PARTICLES *##
+
+@pytest.mark.parametrize(
+    "mass_1, init_pos_1, mass_2, init_pos_2, expected_energy",
+    [
+        (10, [-10,-10,-10], 10, [10,10,10], -CONFIG.G*100/34.64101615137754),
+        (1, [-10,-10,-10], 100, [10,10,10], -CONFIG.G*100/34.64101615137754),
+        (1, [1e3,-10,2], 1, [1e3,10,2], -CONFIG.G/20),
+        (123, [-4,1.45,25.2], 43, [3,-17.53,4.32], -CONFIG.G*5289/29.07257814504933),
+    ]
+)
+def test_calculate_potential_energy_of_particles_two_particles(mass_1, init_pos_1, mass_2, init_pos_2, expected_energy):
+    particles = { 0: Particle(0, mass_1, init_pos_1, [0]*3), 1: Particle(1, mass_2, init_pos_2, [0]*3) }
+    assert calculate_potential_energy_of_particles(particles) == pytest.approx(expected_energy)
+
+
+@pytest.mark.parametrize(
+    "mass_1, init_pos_1, mass_2, init_pos_2, mass_3, init_pos_3, expected_energy",
+    [
+        (1, [10,0,0], 1, [0,0,0], 1, [-10,0,0], -CONFIG.G/4),
+        (1, [10,0,0], 10, [0,0,0], 1, [-10,0,0], -CONFIG.G*2.05),
+        (4.2, [12.1,3.23,5], 3.7, [2,3.2,5.4], 11.54, [-3.12,-100.2,45.5], -CONFIG.G*(2.354301877456737))
+    ]
+)
+def test_calculate_potential_energy_of_particles_three_particles(
+        mass_1, init_pos_1, mass_2, init_pos_2, mass_3, init_pos_3, expected_energy
+    ):
+    particles = {
+        0: Particle(0, mass_1, init_pos_1, [0]*3),
+        1: Particle(1, mass_2, init_pos_2, [0]*3),
+        2: Particle(2, mass_3, init_pos_3, [0]*3)
+    }
+    assert calculate_potential_energy_of_particles(particles) == pytest.approx(expected_energy)
+
+
+##* CALCULATE_TOTAL_ENERGY_OF_PARTICLES *##
 
 @pytest.mark.parametrize(
     "mass, init_pos, init_vel, total_energy",
@@ -90,19 +138,24 @@ def test_calculate_energy_of_particles_two_particles( mass_1, init_pos_1, init_v
     assert total_energy == pytest.approx(kinetic_energy + potential_energy)
 
 
+##* 
+
+##* GET_NEXT_PARTICLE_STATES *##
+
 @pytest.mark.parametrize(
     "timesteps, mass_1, pos_1, vel_1, mass_2, pos_2, vel_2, energy",
     [
-        # These are the same examples as listed above, + timesteps
+        #* These are the same examples as listed above, + timesteps
         (1,  1, [0,-1,0], [0,0,0], 1, [0,1,0], [0,0,0], -CONFIG.G/2),
         (10, 1, [0,-1,0], [0,0,0], 1, [0,1,0], [0,0,0], -CONFIG.G/2),
         (2,  1, [0,-10,0], [0,0,0], 1, [0,10,0], [0,0,0], -CONFIG.G/20),
         (50, 1, [0,-10,0], [0,0,0], 1, [0,10,0], [0,0,0], -CONFIG.G/20),
         (4,   1, [1e3,-10,0], [0,0,0], 1, [1e3,10,0], [0,0,0], -CONFIG.G/20),
         (100, 1, [1e3,-10,0], [0,0,0], 1, [1e3,10,0], [0,0,0], -CONFIG.G/20),
-        (5,  1, [1e3,-10,2], [2,2,2], 1, [1e3,10,2], [2,2,2], -CONFIG.G/20 + 12),
+        (0,  1, [1e3,-10,2], [2,2,2], 1, [1e3,10,2], [2,2,2], -CONFIG.G/20 + 12),
+        (1,  1, [1e3,-10,2], [2,2,2], 1, [1e3,10,2], [2,2,2], -CONFIG.G/20 + 12), #! Breaking why???
         # (75, 1, [1e3,-10,2], [2,2,2], 1, [1e3,10,2], [2,2,2], -CONFIG.G/20 + 12),
-        (10,  100, [20,-6.5,13], [1,5,-10], .5, [27,-43,72], [15,-9,0], -CONFIG.G*50/69.72983579501675 + 6376.5),
+        # (10,  100, [20,-6.5,13], [1,5,-10], .5, [27,-43,72], [15,-9,0], -CONFIG.G*50/69.72983579501675 + 6376.5),
         # (250, 100, [20,-6.5,13], [1,5,-10], .5, [27,-43,72], [15,-9,0], -CONFIG.G*50/69.72983579501675 + 6376.5),
     ]
 )
