@@ -1,6 +1,5 @@
 
 import pytest
-from numpy.linalg import norm
 
 from tests.config import TestConfig
 from src.classes.particle import Particle
@@ -78,7 +77,7 @@ def test_calculate_energy_of_particles_single_particle(mass, init_pos, init_vel,
         (100, [20,-6.5,13], [1,5,-10], .5, [27,-43,72], [15,-9,0], -CONFIG.G*50/69.72983579501675 + 6376.5),
     ]
 )
-def test_calculate_energy_of_particles_two_particles( mass_1, init_pos_1,init_vel_1, mass_2, init_pos_2, init_vel_2, expected_energy ):
+def test_calculate_energy_of_particles_two_particles( mass_1, init_pos_1, init_vel_1, mass_2, init_pos_2, init_vel_2, expected_energy ):
     particles = {
         0: Particle(0, mass_1, init_pos_1, init_vel_1),
         1: Particle(1, mass_2, init_pos_2, init_vel_2)
@@ -89,37 +88,50 @@ def test_calculate_energy_of_particles_two_particles( mass_1, init_pos_1,init_ve
     
     assert total_energy == pytest.approx(expected_energy)
     assert total_energy == pytest.approx(kinetic_energy + potential_energy)
-    print("test purposes")
-    for particle in particles.values():
-        ...
 
 
+@pytest.mark.parametrize(
+    "timesteps, mass_1, pos_1, vel_1, mass_2, pos_2, vel_2, energy",
+    [
+        # These are the same examples as listed above, + timesteps
+        (1,  1, [0,-1,0], [0,0,0], 1, [0,1,0], [0,0,0], -CONFIG.G/2),
+        (10, 1, [0,-1,0], [0,0,0], 1, [0,1,0], [0,0,0], -CONFIG.G/2),
+        (2,  1, [0,-10,0], [0,0,0], 1, [0,10,0], [0,0,0], -CONFIG.G/20),
+        (50, 1, [0,-10,0], [0,0,0], 1, [0,10,0], [0,0,0], -CONFIG.G/20),
+        (4,   1, [1e3,-10,0], [0,0,0], 1, [1e3,10,0], [0,0,0], -CONFIG.G/20),
+        (100, 1, [1e3,-10,0], [0,0,0], 1, [1e3,10,0], [0,0,0], -CONFIG.G/20),
+        (5,  1, [1e3,-10,2], [2,2,2], 1, [1e3,10,2], [2,2,2], -CONFIG.G/20 + 12),
+        # (75, 1, [1e3,-10,2], [2,2,2], 1, [1e3,10,2], [2,2,2], -CONFIG.G/20 + 12),
+        (10,  100, [20,-6.5,13], [1,5,-10], .5, [27,-43,72], [15,-9,0], -CONFIG.G*50/69.72983579501675 + 6376.5),
+        # (250, 100, [20,-6.5,13], [1,5,-10], .5, [27,-43,72], [15,-9,0], -CONFIG.G*50/69.72983579501675 + 6376.5),
+    ]
+)
+def test_get_next_particle_states_two_particles(timesteps, mass_1, pos_1, vel_1, mass_2, pos_2, vel_2, energy):
+    """ Checking energy and momentum before and after timesteps """
+    particles = {
+        0: Particle(0, mass_1, pos_1, vel_1),
+        1: Particle(1, mass_2, pos_2, vel_2)
+    }
+    def get_total_momentum(particles):
+        return sum([ particle.momentum() for particle in particles.values() ])
+            
+    total_momentum_before = get_total_momentum(particles)
+    for _ in range(timesteps):
+        particles = get_next_particle_states(particles)
+    total_momentum_after = get_total_momentum(particles)
 
-    #* Checks that if we manually scale a single particle's velocity that the total energy changes how you'd expect
-    # for particles in test_cases.values():
-    #     start_energy = calculate_energy_of_particles(particles)
-    #     for particle in particles.values():
-    #         for k in [1.1, 1.2, 1.3]:
-    #             particle.velocity *= k
-    #             added_energy = (k**2 - 1)*.5*particle.mass*norm(particle.velocity)**2
-    #             end_energy = calculate_energy_of_particles(particles)
-    #             particle.velocity /= k
-    #             assert end_energy - start_energy == pytest.approx(added_energy), "The energy is way off"
+    #! Got to be careful/strict with the absolute and relative error values here; what's their reasoning?
+    assert calculate_total_energy_of_particles(particles) == pytest.approx(energy, abs=1e-4)
+    assert total_momentum_before == pytest.approx(total_momentum_after, abs=1e-4)
+
     
 
+    # for particle_dicts in example_particle_dicts:
+    #     total_momentum = utils_calculate_total_momentum(particle_dicts)
+    #     example_particles_updated = get_next_particle_states(particle_dicts)
+    #     total_momentum_updated = utils_calculate_total_momentum(example_particles_updated)
 
-
-def test_get_next_particle_states():
-    return #! Holding off on this for now.
-    #? What exactly can I do to test this?
-    example_particle_dicts = [ utils_get_test_particles() for _ in range(10) ]
-
-    for particle_dicts in example_particle_dicts:
-        total_momentum = utils_calculate_total_momentum(particle_dicts)
-        example_particles_updated = get_next_particle_states(particle_dicts)
-        total_momentum_updated = utils_calculate_total_momentum(example_particles_updated)
-
-    assert norm(total_momentum) == pytest.approx(norm(total_momentum_updated))
+    # assert norm(total_momentum) == pytest.approx(norm(total_momentum_updated))
 
     # energy_log = dict()
     # for i in range(CONFIG.number_of_steps):
