@@ -86,11 +86,13 @@ def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
     
     return particles
 
+
 def calculate_kinetic_energy_of_particles(particles: dict) -> float:
     total_kinetic = 0
     for particle in particles.values():
         total_kinetic += .5*particle.mass*np.linalg.norm(particle.velocity)**2
     return total_kinetic
+
 
 def calculate_potential_energy_of_particles(particles: dict) -> float:
     total_potential = 0
@@ -111,8 +113,8 @@ def calculate_total_energy_of_particles(particles: dict) -> float:
     return total_energy
 
 
-def get_next_particle_states(particles: dict[int: Particle]) -> None:
-    """ Takes in Particles, calculates changes in motion, updates Particle attributes, returns """
+def get_next_particle_states(particles: dict[int: Particle]) -> dict[int: Particle]:
+    """ Takes in Particles, calculates changes in motion, updates Particle attributes, returns Particles """
 
     distances_cubed = get_distance_matrix(particles)**3
     

@@ -14,7 +14,7 @@ CONFIG = Config()
 def get_filtered_xyz_values(position_log: dict) -> dict:
     """ Returns a dictionary of { Particle key: position log }, where some data is being filtered out for plot framerate """
     #* Builds a blank output data structure
-    print("Filtering data-points before plotting")
+    print("Filtering data-points before plotting", end="\r")
     filtered_positions = dict()
     #* Iterates across each particle and its position log
     #*  > Length of of position logs across particles can vary
@@ -28,6 +28,7 @@ def get_filtered_xyz_values(position_log: dict) -> dict:
                 filtered_ys.append(ys[i])
                 filtered_zs.append(zs[i])
         filtered_positions[id] = (filtered_xs, filtered_ys, filtered_zs)
+    print("\x1b[2K", end="\r")
     print(f"Number of points: {3*len(filtered_xs)}")
     return filtered_positions
 

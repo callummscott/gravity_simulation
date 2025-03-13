@@ -4,7 +4,7 @@ from time import time
 from src.classes.config import Config
 
 from src.plotter import *
-from particle_setup import initialise_random_particles
+from src.particle_setup import initialise_random_particles
 from src.simulation import collision_handler, get_updated_position_logs, get_next_particle_states
 
 
@@ -14,7 +14,7 @@ CONFIG = Config()
 def main():
 
     start_time = time()
-    print("Starting simulation...")
+    print("Starting simulation...", end="\r")
 
     particles = initialise_random_particles(
         n            = CONFIG.number_of_particles,
@@ -29,9 +29,9 @@ def main():
         particles = collision_handler(particles)
         position_logs = get_updated_position_logs(position_logs, particles)
         particles = get_next_particle_states(particles)
-
+    print("\x1b[2K", end="\r")
     print("Simulation complete.")
-    print("Processing position data...")
+    print("Processing position data...", end="\r")
     plot_data = get_filtered_xyz_values(position_logs)
 
     for finish_time in plot_results_3d(plot_data): # Yields the `finish_time` before the plot is closed by the user.
