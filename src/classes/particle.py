@@ -29,30 +29,15 @@ class Particle:
         if not (len(initial_position) == len(initial_velocity) == 3):
             raise TypeError("State variables are not 3 dimensional")
         
-        self._position = array(initial_position)
-        self._velocity = array(initial_velocity)
+        self.position = array(initial_position)
+        self.velocity = array(initial_velocity)
+        self.acceleration = None
 
         self.next_position = None
         self.next_velocity = None
+        self.next_acceleration = None
         
-    """ attr: self.POSITION """
-    @property
-    def position(self):
-        return self._position
-
-    @position.setter
-    def position(self, value):
-        self._position = value
-
-    """ attr: self.VELOCITY """
-    @property
-    def velocity(self):
-        return self._velocity
-    
-    @velocity.setter
-    def velocity(self, value):
-        self._velocity = value
-
+    """ method: self.MOMENTUM() """
     def momentum(self):
         return self.mass*self.velocity
     
