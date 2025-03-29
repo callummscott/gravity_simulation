@@ -1,7 +1,7 @@
 """ File containing user-defined settings for simulation, along with some useful derived values. """
-import logging
-from random import seed
 from yaml import safe_load
+from random import seed
+from logging import getLogger, basicConfig, INFO
 
 class Config:
     """ Class containing useful values and accessing user-defined variables """
@@ -32,13 +32,15 @@ class Config:
         self.simple_log_rate = int(self.number_of_particles * self.maximum_time / (self.total_points_number * self.timestep))
 
         log_cfg = config['Logging info']
-        self.logger = logging.getLogger(__name__)
-        logging.basicConfig(
+        self.logger = getLogger(__name__)
+        basicConfig(
             filename=output_file,
-            level=logging.INFO,
+            level=INFO,
             format=log_cfg['format'],
             datefmt=log_cfg['datefmt'],
             filemode="w"
         )
 
         seed(self.seed)
+
+CFG = Config()

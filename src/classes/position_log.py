@@ -6,7 +6,7 @@ class PositionLog:
         self.ys = []
         self.zs = []
 
-    def add_position(self, value):
+    def cache_position(self, value):
         """ Adds an (x,y,z) position tuple """
         if type(value) != array:
                 raise TypeError

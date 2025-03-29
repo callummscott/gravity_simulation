@@ -1,14 +1,13 @@
 import matplotlib.pyplot as plt
 from time import time
 
-from src.classes.config import Config
+from src.classes.config import CFG
 from src.classes.position_log import PositionLog
 
 from src.colour_picker import choose_distinct_rgb
 from src.colour_picker import rgb_to_0_1_format
 
 
-CONFIG = Config()
 
 
 def get_filtered_xyz_values(position_log: dict) -> dict:
@@ -22,8 +21,8 @@ def get_filtered_xyz_values(position_log: dict) -> dict:
         xs, ys, zs = log.xs, log.ys, log.zs
         filtered_xs, filtered_ys, filtered_zs  = [], [], []
         for i in range(len(xs)):
-            if i % CONFIG.simple_log_rate == 0:
-                CONFIG.logger.info(f"{i}: {xs[i]}, {ys[i]}, {zs[i]}")
+            if i % CFG.simple_log_rate == 0:
+                CFG.logger.info(f"{i}: {xs[i]}, {ys[i]}, {zs[i]}")
                 filtered_xs.append(xs[i])
                 filtered_ys.append(ys[i])
                 filtered_zs.append(zs[i])

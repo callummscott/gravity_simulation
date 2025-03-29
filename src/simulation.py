@@ -1,77 +1,60 @@
 """ Program to generate 3D plot of n-particle motion under the influence of gravity """
-from numpy import empty, nan, ndarray
+from numpy import empty, nan, ndarray, float64
 from numpy.linalg import norm
 
-from src.classes.config import Config
+from src.classes.config import CFG
 from src.classes.particle import Particle
-from src.classes.symmetric import Symmetric
 from src.classes.position_log import PositionLog
 
-CONFIG = Config()
+Particles = list[Particle]
+IdPair = tuple[int, int]
+VectorDict = tuple[IdPair: ndarray]
+FloatDict = tuple[IdPair: float64]
 
 
-def get_distance_matrix(particles: dict) -> Symmetric:
-    """ Calculates and returns the symmetric distance matrix for a dictionary of Particles """
-    distance_matrix = Symmetric(len(particles))
-    remaining_particle_ids = set(particles)
 
-    distance_matrix[:] = nan # Resets distances
-    for id in remaining_particle_ids:
-        for jd in remaining_particle_ids:
-            distance_matrix[id, jd] = norm(particles[id].position - particles[jd].position)
-    
-    return distance_matrix
-
-def calculate_next_position(particle_id, particles):
-    ...
-
-def get_force_on_particle(particle_id: int, particles: dict, distance_cubed_matrix: Symmetric) -> ndarray:
-    """  """
-    # Requiring distance matrix as argument to save on re-computing it every single time
-    vector_sum = empty(3)
-    for other_id, other_particle in particles.items():
-        if other_id == particle_id:
-            continue
-        else:
-            # F = m * a
-            vector_sum += other_particle.mass * (other_particle.position - particles[particle_id].position) / distance_cubed_matrix[particle_id, other_id]
-    
-    return vector_sum   #* Don't forget the removed CONFIG.G referece
+def get_displacements_and_distances(particles: Particles) -> tuple[VectorDict, FloatDict]:
+    """ v4.1 """
+    displacements, distances = dict(), dict()
+    particles_left = particles.copy()
+    chosen = particles_left[0]
+    particles_left.remove(chosen)
+    while particles_left:
+        for other in particles_left:
+            # Calculate and assign displacements to id_pairs
+            displacement = chosen.position - other.position
+            displacements[(chosen.id, other.id)] = displacement
+            displacements[(other.id, chosen.id)] = -displacement
+        chosen = particles_left[0]
+        particles_left.remove(chosen)
+    # Calculate distances
+    for id_pair, displacement in displacements.items():
+        distances[id_pair] = norm(displacement)
+    return displacements, distances
 
 
-def get_impulse_on_particle(particle_id: int, particles: dict, distance_cubed_matrix: Symmetric) -> ndarray:
-    vector_sum = empty(3)
-    for other_id, other_particle in particles.items():
-        if other_id == particle_id:
-            continue
-        else:
-            # F = m * a -- in a sense
-            vector_sum += other_particle.mass * (other_particle.velocity - particles[particle_id].velocity) / distance_cubed_matrix[particle_id, other_id]
-    return vector_sum  #* Don't forget the removed CONFIG.G referece
-
-
-def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
-    """ Checks if any distances are less than threshold, calculates state variables and merges all collisions with most massive particle, returns updated Particle dictionary with other collided ones removed """
+def collision_handler(particles: Particles) -> Particles:
+    """ Checks if any distances are less than threshold, calculates state variables and merges all collisions with most massive particle, returns updated Particle list with other collided ones removed """
 
     distances = get_distance_matrix(particles)
 
     colliding_particle_pairs = []
 
     # Builds list of unique particle pairs that are colliding
-    particle_set = set(particles)
-    for id in range(CONFIG.number_of_particles):
+    particle_set = set(particle.id for particle in particles)
+    for id in range(CFG.number_of_particles):
         if id in particle_set:
-            for jd in range(id+1, CONFIG.number_of_particles): #* i+1 ensures it doesn't look at [i,i] elements
+            for jd in range(id+1, CFG.number_of_particles): #* i+1 ensures it doesn't look at [i,i] elements
                 if jd in particle_set:
-                    # CONFIG.logger.info(f"Checking between : i={id} & j={jd}")
-                    if distances[id, jd] < CONFIG.collision_distance:
-                        CONFIG.logger.info(f" ^ Collision found!")
+                    # CFG.logger.info(f"Checking between : i={id} & j={jd}")
+                    if distances[id, jd] < CFG.collision_distance:
+                        CFG.logger.info(f" ^ Collision found!")
                         colliding_particle_pairs.append({id, jd})
 
-    # Checks for any collion-pairs and 'collides' them, removing smallest from particles
+    # Checks for any collion-pairs and 'collides' them -- i.e. removes the collided particle with the smallest mass from the list
     if colliding_particle_pairs:
-        CONFIG.logger.info(f"Colliding pairs: {colliding_particle_pairs}")
-        CONFIG.logger.info(particles)
+        CFG.logger.info(f"Colliding pairs: {colliding_particle_pairs}")
+        CFG.logger.info(particles)
         #* Iterate across every colliding pair
         #* Merge smallest into largest (i.e. combine masses, remove smallest)
         #* Conserve momentum
@@ -85,86 +68,66 @@ def collision_handler(particles: dict[int: Particle]) -> dict[int: Particle]:
             biggest.velocity = total_momentum/total_mass
 
             particles.pop(smallest.id)
-            CONFIG.logger.info(f"Particles after popping: {particles}")
+            CFG.logger.info(f"Particles after popping: {particles}")
     
     return particles
 
 
-def calculate_kinetic_energy_of_particles(particles: dict) -> float:
-    total_kinetic = 0
-    for particle in particles.values():
-        total_kinetic += .5*particle.mass*norm(particle.velocity)**2
-    return total_kinetic
 
+def collision_check(particles: Particles):
+    # 
+    ...
 
-def calculate_potential_energy_of_particles(particles: dict) -> float:
-    total_potential = 0
-    distances = get_distance_matrix(particles)
-    if len(particles) > 1: #* Skips calculation of potential energy if only 1 particle exists
-        for i in range(len(particles)):
-            particle_1 = particles[i]
-            for j in range(i+1, len(particles)):
-                particle_2 = particles[j]
-                total_potential -= CONFIG.G*particle_1.mass*particle_2.mass / distances[i, j]
-        return total_potential
-    else:
-        return 0
+def update_particles(particles: Particles):
+    # if not particle.acceleration: do the initial stuff
+    ...
 
+def calculate_and_assign_accelerations(particles: Particles, next_accel: bool=False) -> None:
+    remaining_ids = list(particles)
 
-def calculate_total_energy_of_particles(particles: dict) -> float:
-    total_energy = calculate_kinetic_energy_of_particles(particles) + calculate_potential_energy_of_particles(particles)    
-    return total_energy
+    for _ in range(len(remaining_ids)):
+        chosen_id = remaining_ids[0]
+        remaining_ids.pop(0) #* Experiments suggesting this is the fastest element remover
+        acceleration = empty(3)
+        for other_id in remaining_ids:
+            chosen, other = particles[chosen_id], particles[other_id]
+            if next_accel:
+                vector_from_chosen_to_other = other.next_position - chosen.next_position
+            else:
+                vector_from_chosen_to_other = other.position - chosen.position
+            acceleration += CFG.G*other.mass*(vector_from_chosen_to_other) / norm(vector_from_chosen_to_other)**3
+        if next_accel:
+            particles[chosen_id].next_acceleration = acceleration
+        else:
+            particles[chosen_id].acceleration = acceleration
+    return particles
 
 
 def get_next_particle_states(particles: dict[int: Particle]) -> dict[int: Particle]:
     """ Takes in Particles, calculates changes in motion, updates Particle attributes, returns Particles """
-
-    distances_cubed = get_distance_matrix(particles)**3
+    dt        = CFG.timestep
+    half_dtsq = CFG.half_dtsq
     
-    G         = CONFIG.G
-    dt        = CONFIG.timestep
-    half_dtsq = CONFIG.half_dtsq
+    for particle in particles.values():
+        particle.next_position = particle.position + particle.velocity*dt + particle.acceleration*half_dtsq   
 
-    for particle_id, particle in particles.items():                
-        force = get_force_on_particle(particle_id, particles, distances_cubed)
-        impulse = get_impulse_on_particle(particle_id, particles, distances_cubed)
+    for particle in particles.values():
+        calculate_and_assign_accelerations(particles, next_accel=True)
 
-        delta_pos = particle.velocity*dt + G*force*half_dtsq/particle.mass
-        delta_vel = G*(force*dt + impulse*half_dtsq)/particle.mass
-
-        particle.next_position = particle.position + delta_pos
-        particle.next_velocity = particle.velocity + delta_vel
-
-    # Have to separate these reassignments so that the calculations all apply to the particle's state in the *previous* step
+    for particle in particles.values():
+        particle.next_velocity = particle.velocity + .5*(particle.acceleration + particle.next_acceleration)*dt       
+        
     for particle in particles.values():
         particle.position = particle.next_position
         particle.velocity = particle.next_velocity
+        particle.acceleration = particle.next_acceleration
 
     return particles
 
-def get_next_particle_states_verlet(particles: dict[int: Particle]) -> None:
-    """ Takes in Particles, calculates changes in motion, updates Particle attributes, returns """
 
-    distances_cubed = get_distance_matrix(particles)**3
-    
-    G         = CONFIG.G
-    dt        = CONFIG.timestep
-    half_dtsq = CONFIG.half_dtsq
+def get_updated_position_logs(position_logs: PositionLog, particles: Particles) -> PositionLog:
+    for particle in particles:
+        position_logs[particle.id].cache_position(particle.position)
 
-    for particle_id, particle in particles.items():                
-        next_position = particle.position + particle.velocity*dt + half_dtsq*get_force_on_particle(particle)/particle.mass
-        next_acceleration = get_force_on_particle(particle, particles, distances_cubed)
-
-    # Have to separate these reassignments so that the calculations all apply to the particle's state in the *previous* step
-    for particle in particles.values():
-        particle.position = particle.next_position
-        particle.velocity = particle.next_velocity
-
-    return particles
-
-def get_updated_position_logs(position_logs: PositionLog, particles: Particle) -> PositionLog:
-    for id, particle in particles.items():
-        position_logs[id].add_position(particle.position)
-
-    # CONFIG.logger.info(position_logs)
+    # CFG.logger.info(position_logs)
     return position_logs
