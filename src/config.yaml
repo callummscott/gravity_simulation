@@ -1,24 +1,24 @@
 ---
 # Particle setup values:
 random_inputs: True # No such functionality for this being false...
-seed: 'RandomString4' #, 'I<3DavidJMalan' RandomString2, 'RandomString4'-- often crashes, 'RandomString5'--cool loop
-max_mass     : 1_000_000
+seed: 'RandomString6'
+max_mass     : 1000
 max_distance : 100
 max_speed    : 1
 
 # Simulation constants:
-G : 100 #0.005
+G : 10 #0.005
+dt : 0.01 #s
 number_of_particles : 3
-timestep : 0.001 #s
-maximum_time : 100 #s
 collision_distance : 1
+timesteps : 2000 #s
 
 # Plot constants:
-total_points_number : 1000
+total_plot_points : 1000
 
 Logging info:
   format : '%(asctime)s [%(levelname)s] %(module)s > %(funcName)s: %(message)s'
-  # level : logging.INFO
+  level : logging.INFO
   datefmt : '%I:%M:%S'
 
 ...

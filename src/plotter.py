@@ -1,59 +1,52 @@
+""" Module for logging and plotting `Particles`. """
+
 import matplotlib.pyplot as plt
-from time import time
-
-from src.classes.config import CFG
-from src.classes.position_log import PositionLog
-
-from src.colour_picker import choose_distinct_rgb
-from src.colour_picker import rgb_to_0_1_format
+from src.data_types import PositionLog, Particles
 
 
+def log_positions(particles: Particles, position_log: PositionLog) -> None:
+    """
+    Takes in `Particles` and a `PositionLog`.\n
+    Returns an updated `PositionLog` containing particles' positions. 
+    """
+    for particle in particles:
+        position_log[particle.id].append(particle.position)
+    return position_log
 
 
-def get_filtered_xyz_values(position_log: dict) -> dict:
-    """ Returns a dictionary of { Particle key: position log }, where some data is being filtered out for plot framerate """
-    #* Builds a blank output data structure
-    print("Filtering data-points before plotting", end="\r")
-    filtered_positions = dict()
-    #* Iterates across each particle and its position log
-    #*  > Length of of position logs across particles can vary
-    for id, log in position_log.items(): # essentially, log = [ [x,y,z], [x,y,z], ... ]
-        xs, ys, zs = log.xs, log.ys, log.zs
-        filtered_xs, filtered_ys, filtered_zs  = [], [], []
-        for i in range(len(xs)):
-            if i % CFG.simple_log_rate == 0:
-                CFG.logger.info(f"{i}: {xs[i]}, {ys[i]}, {zs[i]}")
-                filtered_xs.append(xs[i])
-                filtered_ys.append(ys[i])
-                filtered_zs.append(zs[i])
-        filtered_positions[id] = (filtered_xs, filtered_ys, filtered_zs)
-    print("\x1b[2K", end="\r")
-    print(f"Number of points: {3*len(filtered_xs)}")
-    return filtered_positions
+def parse_position_logs(position_logs: PositionLog):
+    """
+    Takes in `PositionLog` and parses its position lists to pyplot-friendly (xs,ys,zs) tuple.\n
+    Example: { 0: [ [10,20,30], [11,21,31], ... ] } -> { 0: ([10,11,...], [20,21,...], [30,31,...]) }
+    """
+    parsed_logs = dict()
+    for id, positions in position_logs.items():
+        
+        xs, ys, zs = list(), list(), list()
+        for x, y, z in positions:
+            #TODO: Got to be a better way of doing this.
+            xs.append(x)
+            ys.append(y)
+            zs.append(z)
+        parsed_logs[id] = (xs, ys, zs)
+    return parsed_logs
 
 
-def plot_results_3d(filtered_positions: dict[int:PositionLog]):
-    """ Takes in a dictionary of { particle key : filtered position log }, generates 3D plot """
+def plot_logs(position_logs: PositionLog) -> None:
+    """ Takes in a `PositionLog', parses it into pyplot-readable tuples and plots in 3D. """
+    parsed_logs = parse_position_logs(position_logs)
 
     fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    
-    past_colours = []
-    for id, log in filtered_positions.items():
-        xs, ys, zs = log
-        particle_colour_rgb, new_past_colours = choose_distinct_rgb(past_colours)
-        particle_colour_0_1 = rgb_to_0_1_format(particle_colour_rgb)
-        past_colours = new_past_colours #? Change the function to one that just appends the chosen colour? 
-        ax.scatter3D(xs, ys, zs, marker='o', color=particle_colour_0_1, label=f"{id}")
-        ax.plot3D(xs, ys, zs)
-        ax.text3D(xs[0], ys[0], zs[0], f"Particle {id}")
-        ax.legend()
+    ax = fig.add_subplot(projection='3d')
 
-    ax.set_xlabel('x axis')
-    ax.set_ylabel('y axis')
-    ax.set_zlabel('z axis')
-    ax.axis('equal')
+    for _, xyzs in parsed_logs.items():
+        ax.scatter(*xyzs)
 
-    yield time()
+    ax.set_xlabel('x-axis')
+    ax.set_ylabel('y-axis')
+    ax.set_zlabel('z-axis')
 
-    plt.show()
+    try:
+        plt.show()
+    except KeyboardInterrupt:
+        print("Closing Plot.")

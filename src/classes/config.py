@@ -1,7 +1,8 @@
-""" File containing user-defined settings for simulation, along with some useful derived values. """
+""" Class used to read both user-defined settings and derived variables useful for the simulation. """
+
 from yaml import safe_load
-from random import seed
 from logging import getLogger, basicConfig, INFO
+
 
 class Config:
     """ Class containing useful values and accessing user-defined variables """
@@ -18,29 +19,46 @@ class Config:
         self.max_speed     = config['max_speed']
 
         self.G                   = config['G']
-        self.number_of_particles = config['number_of_particles']
-        self.timestep            = config['timestep']
-        self.maximum_time        = config['maximum_time']
+        self.dt                  = config['dt']
+        self.timesteps           = config['timesteps']
         self.collision_distance  = config['collision_distance']
+        self.number_of_particles = config['number_of_particles']
 
-        self.total_points_number = config['total_points_number']
-        self.logging             = config['Logging info']
+        self.half_dtsq            = .5*self.dt**2
+        self.logging              = config['Logging info']
 
-        self.half_dtsq       = self.timestep**2 / 2
-        self.number_of_steps = int(self.maximum_time/self.timestep)
-        self.number_of_calcs = self.number_of_steps*self.number_of_particles
-        self.simple_log_rate = int(self.number_of_particles * self.maximum_time / (self.total_points_number * self.timestep))
+        self._total_plot_points   = config['total_plot_points']
+        self._simple_log_rate     = int(self.number_of_particles *  self.timesteps / self.total_plot_points)
 
-        log_cfg = config['Logging info']
         self.logger = getLogger(__name__)
         basicConfig(
             filename=output_file,
             level=INFO,
-            format=log_cfg['format'],
-            datefmt=log_cfg['datefmt'],
+            format=self.logging['format'],
+            datefmt=self.logging['datefmt'],
             filemode="w"
-        )
+        ) 
 
-        seed(self.seed)
+    @property
+    def simple_log_rate(self):
+        return self._simple_log_rate
+    
+    @simple_log_rate.setter
+    def simple_log_rate(self, value):
+        raise ValueError("Cannot change simple_log_rate.")
+
+    @property
+    def total_plot_points(self):
+        return self._total_plot_points
+
+    @total_plot_points.setter
+    def total_plot_points(self, value):
+        max_points = self.number_of_particles * self.timesteps
+        if value > max_points:
+            print(f"Warning: Too many plot points, reducing to maximum allowed: {max_points:,}.")
+            self._total_plot_points = max_points
+        else:
+            self._total_plot_points = value
+
 
 CFG = Config()

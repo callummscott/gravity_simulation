@@ -1,3 +1,5 @@
+""" Class for representing particles and their states. """
+
 from numpy import array, isfinite, ndarray
 from numpy.linalg import norm
 
@@ -6,8 +8,6 @@ class Particle:
     def __init__(self, id:int, mass:float, initial_position:list, initial_velocity:list):
         if not isinstance(id, int):
             raise TypeError("ID must be an integer")
-        if not (0 <= id <= 16):
-            raise ValueError("id must be within the range 0-16")
         self.id = id
 
         if not (isinstance(mass, float) or isinstance(mass, int)):
@@ -32,12 +32,7 @@ class Particle:
         self.position = array(initial_position)
         self.velocity = array(initial_velocity)
         self.acceleration = None
-
-        self.next_position = None
-        self.next_velocity = None
-        self.next_acceleration = None
         
-    """ method: self.MOMENTUM() """
     def momentum(self):
         return self.mass*self.velocity
     
