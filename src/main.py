@@ -1,6 +1,7 @@
 """ Module for executing n-body gravity simulation and plotting its results in 3D. """
 
 
+import sys
 from src.classes.config import CFG
 from src.energy import print_gravitational_boundedness
 from src.plotter import log_positions, plot_logs
@@ -16,6 +17,7 @@ def main() -> None:
     CFG.logger.info("'Running main.'")
     position_logs = { ptcl.id: list() for ptcl in particles }
     position_logs = log_positions(particles, position_logs)
+    
     initialise_particles(particles)
     for i in range(CFG.timesteps + 1):
         CFG.logger.info(f"'Running timestep' #{i}.")
@@ -24,7 +26,7 @@ def main() -> None:
             CFG.logger.info(f"Logging updated positions: {[ptcl.position for ptcl in particles]}")
             position_logs = log_positions(particles, position_logs)
     
-    plot_logs(position_logs)
+    plot_logs(position_logs, CFG)
 
 
 if __name__ == "__main__":

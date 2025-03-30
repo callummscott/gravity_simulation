@@ -1,17 +1,62 @@
+# Python Gravity Simulation
+> A 3D n-body gravity simulation written in Python.
 
-# File contents:
-- `n_body_oop.py`:
-    - main program that, when run, generates static 3D pyplot of gravitational particle simulation
-    - name derives from past experiments when deciding between functional or object-oriented approach
-- `config.py`:
-    - stores general data to be refined by user, as well as derived variables, about simulation (e.g. randomised inputs, value of G, ...)
-- `particle_setup.py`:
-    - either uses user-defined intial particle qualities (e.g. velocity, position, mass) or generates randomised (seeded) inputs 
-- `colours.json`:
-    - simply stores 16 notably-distinct colours to be *uniquely* used by each of the particles
-- `sim.log`:
-    - stores the `logging` outputs of the files, *logging level* and other settings defined in `config.py` 
+<img src="docs/gravity_simulation.png" width=640/>
+
+## Usage
+To get started, install all of the relevant packages with:
+```
+pip install -r requirements.txt
+```
+Next, just `cd` to the project's root directory and run:
+```
+py -m src.main [seed_string]
+```
+To change the settings for the simulation, such as:
+- the number of particles
+- the number and size of the timesteps
+- the maximum masses, distances, and speeds of the randomly-generated particles
+- the number of points displayed in the final plot
+- and more...
+
+just check out and edit the contents of the `config.yaml` file in found in `/.config/` 
+
+## How it works
+1. Config values are read from `config.yaml` that dictate how random particles are generated.
+2. These values are used to generate `Particle` objects that store information about each particle's state
+3. Gravity calculations are performed on a list of particles per timestep, while checks for collisions take place
+4. If collisions are found, collision groups are identified and 'merged' with the largest particle, with their momenta being conserved.
+5. Particle positions are read at a config-value derived rate and stored in position logs.
+6. These particle positions are parsed and plotted in 3D using pyplot.
+
+## Navigating
+```
+📦final-project
+ ┣ 📂.config
+ ┃ ┗ config.yaml
+ ┣ 📂docs
+ ┃ ┗ Gravity_Simulation.png
+ ┣ 📂src
+ ┃ ┣ 📂classes
+ ┃ ┃ ┣ config.py
+ ┃ ┃ ┗ particle.py
+ ┃ ┣ __init__.py
+ ┃ ┣ data_types.py
+ ┃ ┣ permutations.py
+ ┃ ┣ particle_setup.py
+ ┃ ┣ motion_calcs.py
+ ┃ ┣ collision_handler.py
+ ┃ ┣ energy.py
+ ┃ ┣ plotter.py
+ ┃ ┗ main.py
+ ┣ .gitignore
+ ┣ requirements.txt
+ ┗ README.md
+ ```
+
+## What now?
+Thanks for reading! If you want to read a little bit more about the thought behind the code, check out `docs/deep-dive.md`.
+
+Enjoy messing around with it! - `Callum`
 
 
-# Usage:
-- Run with `py -m gravity_simulation.main` -- imports won't work if not ran as a module.

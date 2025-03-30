@@ -1,7 +1,10 @@
 """ Module for logging and plotting `Particles`. """
 
+import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from src.data_types import PositionLog, Particles
+from src.classes.config import Config
 
 
 def log_positions(particles: Particles, position_log: PositionLog) -> None:
@@ -32,23 +35,46 @@ def parse_position_logs(position_logs: PositionLog) -> dict[int: tuple]:
     return parsed_logs
 
 
-def plot_logs(position_logs: PositionLog) -> None:
-    """ Takes in a `PositionLog', parses it into pyplot-readable tuples and plots in 3D. """
+def plot_logs(position_logs: PositionLog, config_object: Config) -> None:
+    """ Takes in a `PositionLog' and `Config` object, parses it into pyplot-readable tuples, and styles and plots it in 3D. """
     parsed_logs = parse_position_logs(position_logs)
+
+    # plt.style.use("dark_background")
 
     fig = plt.figure(num="Gravity Simulation")
     ax = fig.add_subplot(projection='3d')
+    plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
 
-    for _, xyzs in parsed_logs.items():
-        ax.scatter(*xyzs)
+    pane_rgba = (.8, .8, .8, .1)
+    ax.xaxis.set_pane_color(pane_rgba)
+    ax.yaxis.set_pane_color(pane_rgba)
+    ax.zaxis.set_pane_color(pane_rgba)
+    # ax.set_axis_off()
+    # ax.grid(False)
+
+    #TODO def update(frame):
+
+    #TODO ani = FuncAnimation(fig, update, frames=)
+
+    for i, xyzs in parsed_logs.items():
+        if config_object.scatter:
+            ax.scatter(*xyzs, label=f"Particle {i}")
+        elif config_object.lines:
+            ax.plot(*xyzs, label=f"Particle {i}")
+    # ax.legend() 
+
+    #* Add legend
+    # plt.legend(bbox_to_anchor=(1.0,1.0),\
+    # bbox_transform=plt.gcf().transFigure)
 
     ax.set_xlabel('x-axis')
     ax.set_ylabel('y-axis')
     ax.set_zlabel('z-axis')
 
+
     try:
         plt.show()
     except KeyboardInterrupt:
-        # Inconsistent but better than nothing.
+        #* Inconsistent but better than nothing.
         print("Closing Plot.")
         plt.close('all')

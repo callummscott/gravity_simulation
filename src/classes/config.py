@@ -12,12 +12,12 @@ class Config:
         with open(config_filename, 'r') as config_file:
             config = safe_load(config_file)
 
-        self.random_seed = config['random_seed']
+        self.random_seed   = config['random_seed']
         self.max_mass      = config['max_mass']
         self.max_distance  = config['max_distance']
         self.max_speed     = config['max_speed']
 
-        self.G                   = config['G']
+        self.G                   = config['gravitational_constant']
         self.dt                  = config['dt']
         self.timesteps           = config['timesteps']
         self.collision_distance  = config['collision_distance']
@@ -28,6 +28,10 @@ class Config:
 
         self._total_plot_points   = config['total_plot_points']
         self._simple_log_rate     = int(self.number_of_particles *  self.timesteps / self.total_plot_points)
+        self.scatter              = config["plot_scatter"]
+        self.lines                = config["plot_lines"]
+        if not (self.scatter or self.lines):
+            raise ValueError("At least 1 of `plot_scatter` or `plot_lines` must be True.")
 
         self.logger = getLogger(__name__)
         basicConfig(
@@ -43,7 +47,7 @@ class Config:
         return self._simple_log_rate
     
     @simple_log_rate.setter
-    def simple_log_rate(self, value):
+    def simple_log_rate(self, value) -> None:
         raise ValueError("Cannot change simple_log_rate.")
 
     @property
@@ -51,7 +55,7 @@ class Config:
         return self._total_plot_points
 
     @total_plot_points.setter
-    def total_plot_points(self, value: int) -> int:
+    def total_plot_points(self, value: int) -> None:
         if (not isinstance(value, int)) or (value <= 0):
             raise ValueError("Plot points must be a positive integer.")
 

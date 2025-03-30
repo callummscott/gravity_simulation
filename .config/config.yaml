@@ -1,24 +1,25 @@
 ---
 # Particle setup values:
-random_inputs: True # No such functionality for this being false...
-random_seed  : 'BestOne'
-max_mass     : 1000
-max_distance : 100
-max_speed    : 5
+random_seed  : "lorem" # 'test string'
+max_mass     : 1000  #: float
+max_distance : 100  #: float
+max_speed    : 5  #: float
 
 # Simulation constants:
-G : 10 #0.005
-dt : 0.01 #s
-number_of_particles : 10
-collision_distance : 1
-timesteps : 2000 #s
+dt : 0.01  #: float
+timesteps : 2000  #: integer
+collision_distance : 1  #: float  #* Effectively represents radius of all particles.
+number_of_particles : 6  #: integer
+gravitational_constant : 5  #: float  #* Higher values means stronger gravitation.
 
-# Plot constants:
-total_plot_points : 1000
+# Plot values:
+total_plot_points : 1500  #: integer  #* This is how many of the datapoints will actually be rendered.
+plot_scatter : True  #: Bool  #* Displays scatter-points representing particle position.
+plot_lines   : False  #: Bool  #* Displays a line connecting each of the scatter points.
 
 Logging info:
   format : '%(asctime)s [%(levelname)s] %(module)s > %(funcName)s: %(message)s'
-  level : logging.INFO
   datefmt : '%I:%M:%S'
 
+#! All configuration numbers must be positive or an error will be raised.
 ...
