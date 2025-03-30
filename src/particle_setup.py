@@ -1,10 +1,10 @@
 """ Module for generating random quantities for setting up the list of `Particle` objects. """
 
-from random import random, uniform
+from random import random, uniform, seed
 from numpy import isfinite
 from numpy.linalg import norm
 from src.data_types import Particles
-from src.classes.config import Config
+from src.classes.config import Config, CFG
 from src.classes.particle import Particle
 
 
@@ -105,3 +105,6 @@ def get_configured_particles(config_object: Config) -> Particles:
         for i in range(config_object.number_of_particles)
     ]
     return particles
+
+
+seed(CFG.random_seed)

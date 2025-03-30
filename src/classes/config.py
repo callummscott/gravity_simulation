@@ -7,13 +7,12 @@ from logging import getLogger, basicConfig, INFO
 class Config:
     """ Class containing useful values and accessing user-defined variables """
 
-    def __init__(self, output_file: str = "sim.log") -> None:
+    def __init__(self, config_filename : str = ".config/config.yaml", output_filename: str = "sim.log") -> None:
         
-        with open("src/config.yaml", 'r') as config_file:
+        with open(config_filename, 'r') as config_file:
             config = safe_load(config_file)
 
-        self.random_inputs = config['random_inputs']
-        self.seed          = config['seed']
+        self.random_seed = config['random_seed']
         self.max_mass      = config['max_mass']
         self.max_distance  = config['max_distance']
         self.max_speed     = config['max_speed']
@@ -32,7 +31,7 @@ class Config:
 
         self.logger = getLogger(__name__)
         basicConfig(
-            filename=output_file,
+            filename=output_filename,
             level=INFO,
             format=self.logging['format'],
             datefmt=self.logging['datefmt'],
