@@ -7,7 +7,7 @@ from logging import getLogger, basicConfig, INFO
 class Config:
     """ Class containing useful values and accessing user-defined variables """
 
-    def __init__(self, output_file="sim.log"):
+    def __init__(self, output_file: str = "sim.log") -> None:
         
         with open("src/config.yaml", 'r') as config_file:
             config = safe_load(config_file)
@@ -40,7 +40,7 @@ class Config:
         ) 
 
     @property
-    def simple_log_rate(self):
+    def simple_log_rate(self) -> int:
         return self._simple_log_rate
     
     @simple_log_rate.setter
@@ -48,11 +48,14 @@ class Config:
         raise ValueError("Cannot change simple_log_rate.")
 
     @property
-    def total_plot_points(self):
+    def total_plot_points(self) -> int:
         return self._total_plot_points
 
     @total_plot_points.setter
-    def total_plot_points(self, value):
+    def total_plot_points(self, value: int) -> int:
+        if (not isinstance(value, int)) or (value <= 0):
+            raise ValueError("Plot points must be a positive integer.")
+
         max_points = self.number_of_particles * self.timesteps
         if value > max_points:
             print(f"Warning: Too many plot points, reducing to maximum allowed: {max_points:,}.")

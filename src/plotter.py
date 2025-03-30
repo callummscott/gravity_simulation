@@ -14,7 +14,7 @@ def log_positions(particles: Particles, position_log: PositionLog) -> None:
     return position_log
 
 
-def parse_position_logs(position_logs: PositionLog):
+def parse_position_logs(position_logs: PositionLog) -> dict[int: tuple]:
     """
     Takes in `PositionLog` and parses its position lists to pyplot-friendly (xs,ys,zs) tuple.\n
     Example: { 0: [ [10,20,30], [11,21,31], ... ] } -> { 0: ([10,11,...], [20,21,...], [30,31,...]) }
@@ -36,7 +36,7 @@ def plot_logs(position_logs: PositionLog) -> None:
     """ Takes in a `PositionLog', parses it into pyplot-readable tuples and plots in 3D. """
     parsed_logs = parse_position_logs(position_logs)
 
-    fig = plt.figure()
+    fig = plt.figure(num="Gravity Simulation")
     ax = fig.add_subplot(projection='3d')
 
     for _, xyzs in parsed_logs.items():
@@ -49,4 +49,6 @@ def plot_logs(position_logs: PositionLog) -> None:
     try:
         plt.show()
     except KeyboardInterrupt:
+        # Inconsistent but better than nothing.
         print("Closing Plot.")
+        plt.close('all')

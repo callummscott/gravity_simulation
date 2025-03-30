@@ -5,7 +5,7 @@ from numpy.linalg import norm
 
 class Particle:
     """ Instances represent individual particles involved in simulation. Information about their mass, position, velocity are stored here. """
-    def __init__(self, id:int, mass:float, initial_position:list, initial_velocity:list):
+    def __init__(self, id:int, mass:float, initial_position:list, initial_velocity:list) -> None:
         if not isinstance(id, int):
             raise TypeError("ID must be an integer")
         self.id = id
@@ -33,6 +33,6 @@ class Particle:
         self.velocity = array(initial_velocity)
         self.acceleration = None
         
-    def momentum(self):
+    def momentum(self) -> ndarray:
         return self.mass*self.velocity
     

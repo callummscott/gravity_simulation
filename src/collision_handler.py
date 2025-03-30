@@ -60,8 +60,10 @@ def collision_handler(particles: Particles, collision_pairs: IdCollection) -> No
     for collision_group_ids in mutually_colliding_ids:
         collision_group_particles = [particle for particle in particles if particle.id in collision_group_ids]
         CFG.logger.info(f"Collision group: {[id for id in collision_group_ids]}")
+        
         most_massive = max(collision_group_particles, key=lambda ptcl: ptcl.mass)
 
+        #* Sums quantities to be conserved and applied to remaining particle
         total_mass, net_position, net_momentum = 0, zeros(3), zeros(3)
         for particle in collision_group_particles:
             # CFG.logger.info(f"'Checking particle' {particle.id}")
@@ -73,10 +75,12 @@ def collision_handler(particles: Particles, collision_pairs: IdCollection) -> No
             net_position += particle.position
             net_momentum += particle.momentum()
     
+        # Applies calculated quantities to new particle
         most_massive.mass = total_mass
         most_massive.position = net_position / len(collision_group_particles)
         most_massive.velocity = net_momentum / total_mass
 
+        # Removes all smaller particles from particles list
         for smaller in get_others(most_massive, collision_group_particles):
             CFG.logger.info(f"Removing other: {smaller.id}")
             particles.remove(smaller)

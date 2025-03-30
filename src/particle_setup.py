@@ -10,7 +10,7 @@ from src.classes.particle import Particle
 
 ##----- Single Properties -----##
 
-def get_mass(max_mass: float):
+def get_mass(max_mass: float) -> float:
     """ Returns single float value in the range (0, max_mass] """
     if max_mass <= 0:
         raise ValueError("Masses cannot be less than or equal to 0")
@@ -23,7 +23,7 @@ def get_mass(max_mass: float):
         return result
 
 
-def get_position(max_distance: float):
+def get_position(max_distance: float) -> list[float, float, float]:
     """  """
     if max_distance <= 0:
         raise ValueError("Distances cannot be less than or equal to 0")
@@ -34,7 +34,7 @@ def get_position(max_distance: float):
     return position
 
 
-def get_velocity(max_speed: float):
+def get_velocity(max_speed: float) -> list[float, float, float]:
     """  """
     if max_speed < 0:
         raise ValueError("Speeds cannot be less than 0")
@@ -47,7 +47,7 @@ def get_velocity(max_speed: float):
 
 ##----- Multiple Properties -----##
 
-def n_is_valid(n: int) -> bool:
+def n_is_valid(n: int) -> int:
     """ Checks that n is a positive integer. """
     if not isinstance(n, int):
         raise TypeError("n must be an integer")
@@ -55,20 +55,20 @@ def n_is_valid(n: int) -> bool:
         raise ValueError("n must be at least 1")
     elif n < 0:
         raise ValueError("n cannot be negative")
-    return True
+    return 1
 
 
-def get_masses(n: int, max_mass: float):
+def get_masses(n: int, max_mass: float) -> list[float, float, float]:
     """  """
     return [get_mass(max_mass) for _ in range(n)]
 
 
-def get_positions(n: int, max_distance: float):
+def get_positions(n: int, max_distance: float) -> list[float, float, float]:
     """  """
     return [get_position(max_distance) for _ in range(n)]
 
 
-def get_velocities(n:int, max_speed: float):
+def get_velocities(n:int, max_speed: float) -> list[float, float, float]:
     """  """
     return [get_velocity(max_speed) for _ in range(n)]
 
