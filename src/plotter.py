@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from src.data_types import PositionLog, Particles
-from src.classes.config import Config
+from src.classes.config import Config, CFG
 
 
 def log_positions(particles: Particles, position_log: PositionLog) -> None:
@@ -35,41 +35,53 @@ def parse_position_logs(position_logs: PositionLog) -> dict[int: tuple]:
     return parsed_logs
 
 
+def plotter(ax, xyzs: tuple, plot_type: str, **param_dict: dict): # Only God knows what the type is.
+    """ Takes in an `axes` argument, xyz positions and  """
+    if plot_type == "scatter":
+        out = ax.scatter(*xyzs, **param_dict)
+    elif plot_type == "lines":
+        out = ax.plot(*xyzs, **param_dict)
+    return out
+
+
 def plot_logs(position_logs: PositionLog, config_object: Config) -> None:
     """ Takes in a `PositionLog' and `Config` object, parses it into pyplot-readable tuples, and styles and plots it in 3D. """
     parsed_logs = parse_position_logs(position_logs)
 
     # plt.style.use("dark_background")
 
-    fig = plt.figure(num="Gravity Simulation")
-    ax = fig.add_subplot(projection='3d')
-    plt.subplots_adjust(left=0.05, right=0.95, top=0.95, bottom=0.05)
+    fig = plt.figure(label="Gravity Simulation")
+    ax = fig.add_subplot((0,.01,1,1), projection='3d')
 
-    pane_rgba = (.8, .8, .8, .1)
+    pane_rgba = (.8,.8,.8,.1)
     ax.xaxis.set_pane_color(pane_rgba)
     ax.yaxis.set_pane_color(pane_rgba)
     ax.zaxis.set_pane_color(pane_rgba)
+
+    ax.set_xlabel('x-axis')
+    ax.set_ylabel('y-axis')
+    ax.set_zlabel('z-axis')
+
     # ax.set_axis_off()
     # ax.grid(False)
 
     #TODO def update(frame):
 
     #TODO ani = FuncAnimation(fig, update, frames=)
-
-    for i, xyzs in parsed_logs.items():
-        if config_object.scatter:
-            ax.scatter(*xyzs, label=f"Particle {i}")
-        elif config_object.lines:
-            ax.plot(*xyzs, label=f"Particle {i}")
-    # ax.legend() 
+    
+    if config_object.scatter:
+        for id, xyzs in parsed_logs.items():
+            plotter(ax, xyzs, "scatter", s=config_object.marker_size, label=f"Particle {id}")
+    if config_object.lines:
+        for i, xyzs in parsed_logs.items():
+            plotter(ax, xyzs, "lines", label=f"Particle {id}")
 
     #* Add legend
+    # ax.legend() 
     # plt.legend(bbox_to_anchor=(1.0,1.0),\
     # bbox_transform=plt.gcf().transFigure)
 
-    ax.set_xlabel('x-axis')
-    ax.set_ylabel('y-axis')
-    ax.set_zlabel('z-axis')
+    
 
 
     try:

@@ -16,6 +16,12 @@ class Config:
         self.max_mass      = config['max_mass']
         self.max_distance  = config['max_distance']
         self.max_speed     = config['max_speed']
+        if self.max_mass <= 0:
+            raise ValueError("Max mass must be greater than 0.")
+        if self.max_distance <= 0:
+            raise ValueError("Max distance must be greater than 0.")
+        if self.max_speed < 0:
+            raise ValueError("Max speed cannot be less than 0.")
 
         self.G                   = config['gravitational_constant']
         self.dt                  = config['dt']
@@ -30,6 +36,7 @@ class Config:
         self._simple_log_rate     = int(self.number_of_particles *  self.timesteps / self.total_plot_points)
         self.scatter              = config["plot_scatter"]
         self.lines                = config["plot_lines"]
+        self.marker_size          = config["marker_size"]
         if not (self.scatter or self.lines):
             raise ValueError("At least 1 of `plot_scatter` or `plot_lines` must be True.")
 
