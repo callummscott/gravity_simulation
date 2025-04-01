@@ -2,6 +2,7 @@
 
 from numpy import zeros
 from numpy.linalg import norm
+
 from src.classes.config import CFG
 from src.data_types import Particles, IdCollection, IdPairVectorDict, IdPairFloatDict
 from src.permutations import ordered_pairs_permutations, get_others

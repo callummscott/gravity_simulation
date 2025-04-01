@@ -1,7 +1,6 @@
 """ Module for executing n-body gravity simulation and plotting its results in 3D. """
 
 
-import sys
 from src.classes.config import CFG
 from src.energy import print_gravitational_boundedness
 from src.plotter import log_positions, plot_logs

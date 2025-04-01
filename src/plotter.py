@@ -1,10 +1,9 @@
 """ Module for logging and plotting `Particles`. """
 
-import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
+
 from src.data_types import PositionLog, Particles
-from src.classes.config import Config, CFG
+from src.classes.config import Config
 
 
 def log_positions(particles: Particles, position_log: PositionLog) -> None:
@@ -48,8 +47,6 @@ def plot_logs(position_logs: PositionLog, config_object: Config) -> None:
     """ Takes in a `PositionLog' and `Config` object, parses it into pyplot-readable tuples, and styles and plots it in 3D. """
     parsed_logs = parse_position_logs(position_logs)
 
-    # plt.style.use("dark_background")
-
     fig = plt.figure(label="Gravity Simulation")
     ax = fig.add_subplot((0,.01,1,1), projection='3d')
 
@@ -62,13 +59,6 @@ def plot_logs(position_logs: PositionLog, config_object: Config) -> None:
     ax.set_ylabel('y-axis')
     ax.set_zlabel('z-axis')
 
-    # ax.set_axis_off()
-    # ax.grid(False)
-
-    #TODO def update(frame):
-
-    #TODO ani = FuncAnimation(fig, update, frames=)
-    
     if config_object.scatter:
         for id, xyzs in parsed_logs.items():
             plotter(ax, xyzs, "scatter", s=config_object.marker_size, label=f"Particle {id}")
@@ -76,17 +66,10 @@ def plot_logs(position_logs: PositionLog, config_object: Config) -> None:
         for i, xyzs in parsed_logs.items():
             plotter(ax, xyzs, "lines", label=f"Particle {id}")
 
-    #* Add legend
-    # ax.legend() 
-    # plt.legend(bbox_to_anchor=(1.0,1.0),\
-    # bbox_transform=plt.gcf().transFigure)
-
-    
-
 
     try:
         plt.show()
     except KeyboardInterrupt:
-        #* Inconsistent but better than nothing.
+        #* Inconsistent but occasionally better than nothing.
         print("Closing Plot.")
         plt.close('all')

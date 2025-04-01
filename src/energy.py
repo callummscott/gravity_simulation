@@ -2,6 +2,7 @@
 
 from numpy import float64
 from numpy.linalg import norm
+
 from src.classes.config import CFG
 from src.motion_calcs import Particles
 from src.permutations import ordered_pairs_permutations

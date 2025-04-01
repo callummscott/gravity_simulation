@@ -1,6 +1,7 @@
 """ Module for calculating and updating the motion of particles. """
 
 from numpy import ndarray, zeros
+
 from src.classes.config import CFG
 from src.classes.particle import Particle
 from src.permutations import all_chosen_and_others

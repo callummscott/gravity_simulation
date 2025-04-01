@@ -1,6 +1,7 @@
 """ Module for generating random quantities for setting up the list of `Particle` objects. """
 
 import numpy.random as random
+
 from src.data_types import Particles
 from src.classes.config import Config
 from src.classes.particle import Particle
