@@ -73,5 +73,4 @@ class Config:
         else:
             self._total_plot_points = value
 
-
 CFG = Config()

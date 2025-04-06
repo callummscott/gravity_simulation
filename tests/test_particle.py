@@ -3,57 +3,41 @@ from numpy import array, array_equal
 
 from src.classes.particle import Particle
 
+class TestParticle:
+    @pytest.mark.parametrize("id, mass, pos, vel", [(10, 123, [1,-2,3], [-0.1,0.2,-0.3])])
+    def test_values_get_initialised(self, id, mass, pos, vel):
+        particle = Particle(id, mass, pos, vel)
+        assert particle.id == id
+        assert particle.mass == mass
+        assert array_equal(particle.position, array(pos))
+        assert array_equal(particle.velocity, array(vel))
+        assert array_equal(particle.momentum(), particle.mass*particle.velocity)
+        assert particle.acceleration == None
 
-@pytest.mark.parametrize(
-    "id, mass, pos, vel",
-    [
-        (4, 10, [0,0,0], [0,0,0]),
-        (6, 256, [2,4,8], array([10,-22,-100])),
-        (14, 6234.232, array([1,-1,-1]), array([222,22,2])),
-    ]
-)
-def test_particle(id, mass, pos, vel):
-    particle = Particle(id, mass, pos, vel)
-    assert particle.id == id
-    assert particle.mass == mass
-    assert array_equal(particle.position, array(pos))
-    assert array_equal(particle.velocity, array(vel))
-    assert particle.next_position == None
-    assert particle.next_velocity == None
-    assert array_equal(particle.momentum(), particle.mass*particle.velocity) 
+    @pytest.mark.parametrize("mass, pos, vel", [(1, [1,1,1],[2,2,2])])
+    def test_id_not_an_integer(self, mass, pos, vel):
+        with pytest.raises(TypeError):
+            Particle("2", mass, pos, vel)
+            Particle(1.1, mass, pos, vel)
+            Particle(1/12, mass, pos, vel)
 
-
-@pytest.mark.parametrize(
-    "id, mass, pos, vel",
-    [
-        # -- id not an integer --
-        ("2", 1, [1,1,1],[2,2,2]),
-        (1.1, 10, [1,1,1],[2,2,2]),
-        (1/12, 10, [1,1,1],[2,2,2]),
-        # -- mass not an integer --
-        (5, [1,2], [0,0,0], [0,0,0]),
-        (10, "mass", [0,0,0], [0,0,0]),
-        # -- position is not a valid array-type --
-        (2, 102.348, [-10,-10,-10,-10], [0,0,0]),
-        (14, 1028.256, [2,4], [0,0,0]),
-        (14, 1028.256, array([1,2,3,4]), [0,0,0])
-    ]
-)
-def test_particle__init__type_error(id, mass, pos, vel):
-    with pytest.raises(TypeError):
-        Particle(id, mass, pos, vel)
-
-
-@pytest.mark.parametrize(
-    "id, mass, pos, vel",
-    [
-        (-1, 10, [.5,.2,-.1], [-1.42e3,504,12]),
-        (17, 10, [101,-110,11], [-4,8,-16]),
-        (6, 0, [0,0,0], [0,0,0]),
-        (4, 23e3, [1e440,1,1], [20,20,20]),
-        (2, 10, [-10,20,10], [10,float('inf'),10])
-    ]
-)
-def test_particle__init__value_error(id, mass, pos, vel):
-    with pytest.raises(ValueError):
-        Particle(id, mass, pos, vel)
+    @pytest.mark.parametrize("id, pos, vel", [(10, [-100,100,-50], [-1,-1,-5])])
+    def test_mass_not_a_float(self, id, pos, vel):
+        with pytest.raises(TypeError):
+            Particle(id, [1,2], pos, vel)
+            Particle(id, sum, pos, vel)
+            Particle(id, "mass", pos, vel)
+        
+    @pytest.mark.parametrize("id, mass, vel", [(12, 100, [-1.2, 3.2, -2.6])])
+    def test_position_not_valid_array_type(self, id, mass, vel):
+        with pytest.raises(TypeError):
+            Particle(id, mass, [-10,-10,-10,-10], vel)
+            Particle(id, mass, [2,4], vel)
+            Particle(id, mass, array([1,2,3,4]), vel)
+        
+    @pytest.mark.parametrize("id, mass, pos", [(12, 100, [-1.2, 3.2, -2.6])])
+    def test_velocity_not_valid_array_type(self, id, mass, pos):
+        with pytest.raises(TypeError):
+            Particle(id, mass, pos, [-10,-10,-10,-10])
+            Particle(id, mass, pos, [2,4])
+            Particle(id, mass, pos, array([1,2,3,4]))

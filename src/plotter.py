@@ -34,17 +34,16 @@ def parse_position_logs(position_logs: PositionLog) -> dict[int: tuple]:
     return parsed_logs
 
 
-def plotter(ax, xyzs: tuple, plot_type: str, **param_dict: dict): # Only God knows what the type is.
+def plotter(ax, xyzs: tuple, config_object: Config, **param_dict: dict) -> None:
     """ Takes in an `axes` argument, xyz positions and  """
-    if plot_type == "scatter":
-        out = ax.scatter(*xyzs, **param_dict)
-    elif plot_type == "lines":
-        out = ax.plot(*xyzs, **param_dict)
-    return out
+    if config_object.scatter:
+        ax.scatter(*xyzs, s=config_object.marker_size, **param_dict)
+    if config_object.lines:
+        ax.plot(*xyzs, **param_dict)
 
 
 def plot_logs(position_logs: PositionLog, config_object: Config) -> None:
-    """ Takes in a `PositionLog' and `Config` object, parses it into pyplot-readable tuples, and styles and plots it in 3D. """
+    """ Takes in a `PositionLog' and `Config` object, parses it into pyplot-readable tuples, styles and plots it in 3D. """
     parsed_logs = parse_position_logs(position_logs)
 
     fig = plt.figure(label="Gravity Simulation")
@@ -59,13 +58,8 @@ def plot_logs(position_logs: PositionLog, config_object: Config) -> None:
     ax.set_ylabel('y-axis')
     ax.set_zlabel('z-axis')
 
-    if config_object.scatter:
-        for id, xyzs in parsed_logs.items():
-            plotter(ax, xyzs, "scatter", s=config_object.marker_size, label=f"Particle {id}")
-    if config_object.lines:
-        for i, xyzs in parsed_logs.items():
-            plotter(ax, xyzs, "lines", label=f"Particle {id}")
-
+    for id, xyzs in parsed_logs.items():
+        plotter(ax, xyzs, config_object, label=f"Particle {id}")
 
     try:
         plt.show()

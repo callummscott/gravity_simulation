@@ -1,16 +1,16 @@
 ---
 # Particle setup values:
 random_seed  : 4642972101198497408 #: int
-max_mass     : 1000  #: float
+max_mass     : 200  #: float
 max_distance : 70  #: float
-max_speed    : 5  #: float
+max_speed    : 10  #: float
 
 # Simulation constants:
 dt : 0.01  #: float
 timesteps : 2000  #: integer
 collision_distance : 1  #: float  #* Effectively represents radius of all particles.
-number_of_particles : 6  #: integer
-gravitational_constant : 10  #: float  #* Higher values means stronger gravitation.
+number_of_particles : 7  #: integer
+gravitational_constant : 15  #: float  #* Higher values means stronger gravitation.
 
 # Plot values:
 total_plot_points : 1500  #: integer  #* This is how many of the datapoints will actually be rendered.

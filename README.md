@@ -10,7 +10,8 @@ pip install -r requirements.txt
 ```
 Next, just `cd` to the project's root directory and run:
 ```
-py -m src.main
+py -m src.main        # on windows
+python3 -m src.main   # on Unix/MacOS
 ```
 To change the settings for the simulation, such as:
 - the number of particles
