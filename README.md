@@ -27,13 +27,14 @@ just check out and edit the contents of the `config.yaml` file in found in the `
 2. These values are used to generate `Particle` objects that store information about each particle's state
 3. Gravity calculations are performed on a list of particles per timestep, while checks for collisions take place
 4. If collisions are found, collision groups are identified and 'merged' with the largest particle, with their momenta being conserved.
-5. Particle positions are read at a config-value derived rate and stored in position logs.
+5. Particle positions are read at slower than a per-timestep rate, derived from values in the config file.
 6. These particle positions are finally parsed and plotted in 3D using pyplot!
 
 ## Potential Improvements
-- **Animation**: I've already tried to get animations working but despite some success on a smaller scale, it's proving difficult to achieve with a dynamically set number of particles. Visuals of particles floating around and leaving behind a trail is surely a tremendous improvement over what currently is, but this is so the best I'm able to achieve.
+- **Animation**: I've already tried to get animations working but despite some success on a smaller scale, it's proving difficult to achieve with a dynamically set number of particles. Visuals of particles floating around and leaving behind a trail would surely be a massive improvement over what is currently on offer, but this is so far the best I've been able to achieve.
 - **Utilising more NumPy**: Only after building confidence with libraries throughout this project have I realised just how much could be rewritten with greater use of `numpy`. This version is itself essentially a complete overhaul that I managed to squeeze into less than a week, and yet I feel immediately that another one is already due. I was also proud of my creation of the `permutations` module that I made use of throughout, only to also eventually find that `itertools` already offers things like `combinations` and `product` that I could have been using.
-- **Mass-based particle sizing**: Seeing how straightforward it is to dynamically size the scatter points in pyplot (i.e. by just defining `s=`), it immediately became apparent that if I kept some kind of parallel log of the mass (or changes to it) then not only could I straightforwardly illustrate the masses of particles, but I could even dynamically change it when collisions with other particles occurred.
+- **Testing**: The test suite I currently have is lacking in many ways but honestly I've been struggling to come up with a good way of testing what exactly is 'desired' about this simulation given the inherently flawed/approximative nature of numerical simulations. How much error is a reasonable amount of error? This is in itself dependent upon values for `dt` and `G`, and even how many timesteps have passed. At the very least, I know that momentum and energy are approximately conserved locally, but 'global' tests would be nice.
+- **Mass-based particle sizing**: Seeing how straightforward it is to dynamically size the scatter points in pyplot (i.e. by just defining `s=`), it immediately became apparent that if I kept some kind of parallel log of the mass (or the changes to it) then not only could I straightforwardly illustrate the masses of particles, but I could even dynamically change it when collisions with other particles occurred.
 - **Particle arrangement presets**: I orignally set out to make this thinking that I'd be able to hardcode the actual positions of the Sun, Earth and Moon to predict where they'll all be over time. The reality of that goal eventually set in and I figured that a general N-body simulation would be a good compromise. Having made it now though, I think it's probably not too hard to just add in a 'pre-configured particles' option that loads a preset that at the very least loosely resembles the motion of our solar system.
 - **Darkmode**: I wanted to make the plots dark by default, but the default way of achieving this leaves the particle colours looking weirdly faded, but although this is something that's probably much easier to implement than the other improvements, I'm shelving it for now.
 
@@ -41,5 +42,3 @@ just check out and edit the contents of the `config.yaml` file in found in the `
 Thanks for reading! If you want to read a little bit more about the thought behind the code, check out `docs/deep-dive.md`.
 
 Enjoy messing around with it! - `Callum`
-
-

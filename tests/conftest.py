@@ -92,8 +92,8 @@ def particles(particles_data, request):
 
 
 @pytest.fixture
-def initialised_particles(particles):
-    initialise_particles(particles, Config())
+def initialised_particles(particles, config):
+    initialise_particles(particles, config)
     return particles
 
 
