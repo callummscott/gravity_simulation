@@ -1,0 +1,26 @@
+---
+# Particle setup values:
+random_seed  : 4642972101198497408 #: int
+max_mass     : 200  #: float
+max_distance : 70  #: float
+max_speed    : 10  #: float
+
+# Simulation constants:
+dt : 0.01  #: float
+timesteps : 2000  #: integer
+collision_distance : 1  #: float  #* Effectively represents radius of all particles.
+number_of_particles : 7  #: integer
+gravitational_constant : 15  #: float  #* Higher values means stronger gravitation.
+
+# Plot values:
+total_plot_points : 1500  #: integer  #* This is how many of the datapoints will actually be rendered.
+plot_scatter : True  #: Bool  #* Displays scatter-points representing particle position.
+plot_lines   : False  #: Bool  #* Displays a line connecting each of the scatter points.
+marker_size : 6 #: float #* Changes the marker size for the particle position points.
+
+Logging info:
+  format : '%(asctime)s [%(levelname)s] %(module)s > %(funcName)s: %(message)s'
+  datefmt : '%I:%M:%S'
+
+#! All configuration numbers must be positive or an error will be raised.
+...
